@@ -55,7 +55,7 @@ function wireCopyButtons() {
   $$("[data-copy]").forEach((button) => {
     button.addEventListener("click", async () => {
       const root = button.closest(
-        ".code, .doc-figure, .settings-panel, .home-cli",
+        ".code, .doc-figure, .settings-panel, .home-cli, .agent-prompt",
       );
       const source = root?.querySelector("pre, code");
       if (!source) return;

@@ -45,8 +45,43 @@ const blocksOut = document.querySelector("#home-blocks");
 const timeOut = document.querySelector("#home-time");
 const reset = document.querySelector("#home-reset");
 const openLink = document.querySelector("#home-open");
+const copyAgent = document.querySelector("#copy-agent");
+const agentPrompt = document.querySelector("#agent-prompt-text");
 
 let timer = 0;
+let copyTimer = 0;
+
+function fallbackCopy(text) {
+  const area = document.createElement("textarea");
+  area.value = text;
+  area.setAttribute("readonly", "");
+  area.style.position = "fixed";
+  area.style.opacity = "0";
+  document.body.append(area);
+  area.select();
+  try {
+    document.execCommand("copy");
+  } finally {
+    area.remove();
+  }
+}
+
+async function copyAgentPrompt() {
+  if (!agentPrompt) return;
+  const text = agentPrompt.textContent.trim();
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    fallbackCopy(text);
+  }
+  window.clearTimeout(copyTimer);
+  copyAgent.textContent = "Copied — paste it";
+  copyAgent.dataset.copied = "";
+  copyTimer = window.setTimeout(() => {
+    copyAgent.textContent = "Copy agent prompt";
+    delete copyAgent.dataset.copied;
+  }, 1900);
+}
 
 function setState(kind, label) {
   state.dataset.state = kind;
@@ -163,4 +198,6 @@ if (editor) {
     renderNow();
     editor.focus();
   });
+
+  copyAgent.addEventListener("click", copyAgentPrompt);
 }

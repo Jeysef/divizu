@@ -1,0 +1,87 @@
+# divizu
+
+> A deterministic DSL → SVG renderer for architecture diagrams that coding agents can write.
+
+divizu gives a coding agent a tiny language for expressing a repository's
+architecture as a drawing with real sockets, plugs and modules. The user gets a
+clean SVG instead of a wall of prose. The renderer has zero runtime
+dependencies, needs no browser, and produces byte-identical output for the same
+DSL.
+
+## Start here
+
+- Agent skill: https://jeysef.github.io/divizu/skills/divizu.md
+- Playground: https://jeysef.github.io/divizu/playground.html
+- Reference manual: https://jeysef.github.io/divizu/docs.html
+- Quickstart source: https://jeysef.github.io/divizu/examples/quickstart.di
+- Quickstart output: https://jeysef.github.io/divizu/examples/quickstart.svg
+
+## Use it
+
+Ask the agent:
+
+> Use divizu to diagram this project's architecture. Read
+> https://jeysef.github.io/divizu/skills/divizu.md and follow it. Write the
+> architecture as a `.di` file, render it to SVG, and show me the result.
+
+Fastest delivery without installing anything: URL-encode the DSL and return a
+playground link.
+
+```text
+https://jeysef.github.io/divizu/playground.html#dsl=<encodeURIComponent(dsl)>
+```
+
+To render a file:
+
+```bash
+git clone --depth 1 https://github.com/Jeysef/divizu
+cd divizu
+npm install
+npm run build
+node dist/cli.js architecture.di -o architecture.svg
+```
+
+## DSL
+
+```dsl
+CheckoutApi "composition root" {
+  role: root
+  socket Orders <- OrderService
+  socket Telemetry
+  socket Config <- AppConfig
+}
+
+OrderService "application service" {
+  role: composite
+  modules: ValidateCart, PriceOrder
+  socket Payments <- StripeAdapter
+}
+
+StripeAdapter { role: adapter }
+
+AppConfig "context" { role: context }
+```
+
+```dsl
+BlockId ["subtitle"] {
+  role: root | composite | service | adapter | port | layer | context
+  modules: name, "name, with comma", name
+  candidates: Name, Name(RequiredInterface), Name
+  socket PortName
+  socket PortName <- ProviderBlockId
+}
+```
+
+The layout reads bottom-up: the root sits at the bottom, sockets open upward,
+and implementations sit above them. Use unbound sockets for dependencies outside
+the diagram. Keep diagrams to roughly 5–25 blocks and split large systems by
+bounded context.
+
+## Properties
+
+- Input: plain-text `.di` DSL.
+- Output: deterministic, self-contained SVG.
+- Runtime: zero dependencies, no DOM, no canvas, no headless browser.
+- Validation: duplicate ids, dangling providers, unreachable blocks and cycles
+  fail with readable errors.
+- License: MIT.

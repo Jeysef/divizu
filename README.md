@@ -14,6 +14,13 @@ Try the [live sample](https://jeysef.github.io/divizu/), open the
 [full playground](https://jeysef.github.io/divizu/playground.html), or read the
 [documentation](https://jeysef.github.io/divizu/docs.html).
 
+## For agents
+
+Point a coding agent at the [skill](https://jeysef.github.io/divizu/skills/divizu.md)
+or the [llms.txt](https://jeysef.github.io/divizu/llms.txt) context file. The
+agent can write a `.di` file, render it with the CLI, or hand back a playground
+link without installing anything.
+
 ## Why
 
 | Problem with hand-written / AI-generated SVGs | What diviz does |

@@ -629,6 +629,102 @@ ol {
   letter-spacing: 0.02em;
 }
 
+.agent-block {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(24px, 5vw, 72px);
+  align-items: center;
+  padding: clamp(32px, 4.4vw, 54px) 0;
+  border-top: 1px solid var(--line-2);
+  scroll-margin-top: calc(var(--topbar-h) + 24px);
+}
+
+.agent-copy h2 {
+  margin-top: 12px;
+  color: var(--paper);
+  font-size: clamp(30px, 3.6vw, 46px);
+  font-weight: 560;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.agent-copy p:not(.kicker) {
+  max-width: 42ch;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+
+.agent-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 20px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.agent-links a {
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--line-3);
+  color: var(--paper);
+}
+
+.agent-links a:hover {
+  border-color: var(--accent);
+  color: var(--accent-bright);
+}
+
+.agent-prompt {
+  border: 1px solid var(--line-2);
+  background: var(--panel);
+}
+
+.agent-prompt-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 38px;
+  padding: 0 10px 0 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--raised);
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.agent-prompt-head .copy-btn {
+  margin-left: auto;
+}
+
+.agent-prompt pre {
+  padding: 18px;
+  margin: 0;
+  overflow: auto;
+  background: #0f0f0c;
+  color: var(--body);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.agent-prompt code {
+  font: inherit;
+}
+
+.btn-solid[data-copied] {
+  border-color: var(--green);
+  background: var(--green);
+  color: var(--ink);
+}
+
 .home-cli {
   display: flex;
   align-items: center;
@@ -2230,6 +2326,11 @@ ol {
 
   .demo-hint {
     display: none;
+  }
+
+  .agent-block {
+    grid-template-columns: 1fr;
+    gap: 24px;
   }
 }
 

@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>divizu — wiring in, hardware out</title>
+    <title>divizu — let your agent draw the architecture</title>
     <meta
       name="description"
-      content="Edit dependency-injection DSL and get deterministic hardware-slot diagrams as SVG. A small compiler that runs in your browser."
+      content="A tiny diagram language for coding agents. They write the DSL; you get a clean, deterministic SVG of how the project fits together."
     />
     <meta name="theme-color" content="#0c0c0a" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
@@ -53,8 +53,9 @@
         <nav class="topbar-nav" aria-label="Primary">
           <a href="./playground.html"><span class="nav-num">01</span>Playground</a>
           <a href="./docs.html"><span class="nav-num">02</span>Docs</a>
+          <a href="./#agents"><span class="nav-num">03</span>Agents</a>
           <a class="nav-ext" href="https://github.com/Jeysef/divizu"
-            ><span class="nav-num">03</span>GitHub ↗</a
+            ><span class="nav-num">04</span>GitHub ↗</a
           >
         </nav>
 
@@ -69,23 +70,22 @@
         <div class="shell">
           <div class="intro-head">
             <div>
-              <p class="overline">DSL → SVG / in this tab</p>
-              <h1>Wiring in.<br /><span class="accent">Hardware out.</span></h1>
+              <p class="overline">Agent skill / architecture diagrams</p>
+              <h1>Let your agent<br /><span class="accent">draw the system.</span></h1>
             </div>
             <div class="intro-side">
               <p>
-                Edit the source. The plate redraws locally with real sockets,
-                plugs and modules.
+                Give a coding agent a tiny diagram language. It writes the
+                wiring; you get a clean SVG of how the project actually fits
+                together.
               </p>
               <div class="intro-actions">
-                <a
-                  class="btn btn-solid"
-                  id="home-open"
-                  href="./playground.html"
-                >
-                  Full playground <span class="arrow" aria-hidden="true">→</span>
+                <button class="btn btn-solid" id="copy-agent" type="button">
+                  Copy agent prompt
+                </button>
+                <a class="btn" id="home-open" href="./playground.html">
+                  Open playground <span class="arrow" aria-hidden="true">→</span>
                 </a>
-                <a class="btn" href="./docs.html">Manual</a>
               </div>
             </div>
           </div>
@@ -180,20 +180,46 @@
           <div class="home-facts">
             <div>
               <span class="fact-num">01</span>
-              <strong>Runs locally</strong>
-              <span>This tab is the renderer.</span>
+              <strong>Ask</strong>
+              <span>Point your agent at the skill.</span>
             </div>
             <div>
               <span class="fact-num">02</span>
-              <strong>Deterministic</strong>
-              <span>Same DSL, same SVG.</span>
+              <strong>Draw</strong>
+              <span>It writes a small .di file.</span>
             </div>
             <div>
               <span class="fact-num">03</span>
-              <strong>Zero dependencies</strong>
-              <span>No DOM. No measuring.</span>
+              <strong>Read</strong>
+              <span>You get a deterministic SVG.</span>
             </div>
           </div>
+
+          <section class="agent-block" id="agents" aria-labelledby="agents-title">
+            <div class="agent-copy">
+              <p class="kicker">Agent quickstart</p>
+              <h2 id="agents-title">One prompt.<br />It draws the system.</h2>
+              <p>
+                Paste this into your coding agent. It fetches the skill, reads
+                the repository, writes the DSL and renders the SVG.
+              </p>
+              <div class="agent-links">
+                <a href="./skills/divizu.md">Skill file ↗</a>
+                <a href="./llms.txt">llms.txt ↗</a>
+                <a href="./playground.html">See the output ↗</a>
+              </div>
+            </div>
+
+            <div class="agent-prompt">
+              <div class="agent-prompt-head">
+                <span>Prompt / copy</span>
+                <button class="copy-btn" type="button" data-copy>
+                  Copy prompt
+                </button>
+              </div>
+              <pre><code id="agent-prompt-text">Use divizu to diagram this project's architecture. Read https://jeysef.github.io/divizu/skills/divizu.md and follow it. Write the architecture as a .di file, render it to SVG, and show me the result.</code></pre>
+            </div>
+          </section>
 
           <div class="home-cli">
             <span class="home-cli-label">CLI</span>
@@ -221,8 +247,8 @@
             <span class="brand-name">divizu</span>
           </a>
           <p>
-            A deterministic DSL for dependency-injection diagrams. Built as a
-            small, inspectable compiler.
+            A tiny diagram language for coding agents. Deterministic
+            hardware-slot SVG, built as a small, inspectable compiler.
           </p>
         </div>
 
@@ -230,7 +256,8 @@
           <span class="footer-label">Product</span>
           <a href="./playground.html">Playground</a>
           <a href="./docs.html">Documentation</a>
-          <a href="./docs.html#cli">CLI &amp; API</a>
+          <a href="./skills/divizu.md">Agent skill</a>
+          <a href="./llms.txt">llms.txt</a>
         </div>
 
         <div class="footer-col">
