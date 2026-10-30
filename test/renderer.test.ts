@@ -168,11 +168,7 @@ test("parses the checkout example", () => {
   assert.equal(blocks.size, 5);
   assert.equal(blocks.get("CheckoutApi")?.role, "root");
   assert.equal(blocks.get("CheckoutApi")?.subtitle, "DI container (root)");
-  assert.deepEqual(blocks.get("CheckoutApi")?.modules, [
-    "ServiceRegistry",
-    "ConfigLoader",
-    "LifecycleHooks",
-  ]);
+  assert.deepEqual(blocks.get("CheckoutApi")?.modules, []);
   assert.deepEqual(blocks.get("CheckoutApi")?.sockets, [
     { portName: "ShippingPort", providerId: undefined },
     { portName: "OrderUseCase", providerId: "OrderService" },
@@ -465,11 +461,11 @@ test("renders modules and subtitles", () => {
 
 test("escapes XML in ids, subtitles, and modules", () => {
   const svg = render(`
-    Root "a & <b>" {
+    Root { socket Port <- Composite }
+    Composite "a & <b>" {
+      role: composite
       modules: "x<y", d&e
-      socket Port <- Leaf
     }
-    Leaf {}
   `).svg;
 
   assert.match(svg, /a &amp; &lt;b&gt;/);

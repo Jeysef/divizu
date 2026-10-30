@@ -223,12 +223,13 @@
               not separately plugged dependencies. They render as tall vertical cards
               inside the block body, with labels rotated 90°.
             </p>
-            <pre><code>CheckoutApi "DI container (root)" {
-  role: root
-  modules: ServiceRegistry, ConfigLoader, LifecycleHooks
+            <pre><code>OrderService "composite" {
+  role: composite
+  modules: OrderValidator, PricingEngine, OrderMapper
 }</code></pre>
             <ul>
               <li>Modules do not create nodes, sockets, or layout edges.</li>
+              <li>Root containers are intentionally empty: modules on a root are ignored.</li>
               <li>Quote a name to include a comma: <code>"conn pool, primary"</code>.</li>
               <li>
                 A module list may continue on the next line when the line ends with a
@@ -338,7 +339,6 @@
             <h3>Checkout — root, composite, adapters</h3>
             <pre><code>CheckoutApi "DI container (root)" {
   role: root
-  modules: ServiceRegistry, ConfigLoader, LifecycleHooks
   socket ShippingPort
   socket OrderUseCase &lt;- OrderService
   socket ReportPort

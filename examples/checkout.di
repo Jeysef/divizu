@@ -3,7 +3,6 @@
 
 CheckoutApi "DI container (root)" {
   role: root
-  modules: ServiceRegistry, ConfigLoader, LifecycleHooks
   socket ShippingPort
   socket OrderUseCase <- OrderService
   socket ReportPort

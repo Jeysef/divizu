@@ -49,7 +49,6 @@ node src/cli.ts examples/checkout.di -o examples/checkout.svg
 ```dsl
 CheckoutApi "DI container (root)" {
   role: root
-  modules: ServiceRegistry, ConfigLoader, LifecycleHooks
   socket ShippingPort
   socket OrderUseCase <- OrderService
   socket ReportPort

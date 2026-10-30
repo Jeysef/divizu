@@ -659,13 +659,14 @@ function computeLayout(
 
     const titleW = def.id.length * CHAR_W_TITLE + 44;
     const subtitleW = (def.subtitle?.length ?? 0) * CHAR_W_SMALL + 40;
-    const hasCandidates = def.candidates.length > 0;
+    const hasCandidates = def.role !== "root" && def.candidates.length > 0;
     const isLeaf =
       def.role !== "root" &&
       computedSockets.length === 0 &&
       !hasCandidates &&
       (def.role === "adapter" || def.modules.length === 0);
-    const cardCount = def.modules.length + def.candidates.length;
+    const cardCount =
+      def.role === "root" ? 0 : def.modules.length + def.candidates.length;
     const cardsRowW =
       cardCount > 0
         ? cardCount * CANDIDATE_W +
@@ -1038,10 +1039,13 @@ function renderBlock(
 
   // Internal modules and candidate implementations are the same hardware:
   // tall vertical cards in a row, with rotated labels and optional side pills.
-  const cards: CandidateDef[] = [
-    ...node.def.modules.map((name) => ({ name })),
-    ...node.def.candidates,
-  ];
+  const cards: CandidateDef[] =
+    node.def.role === "root"
+      ? []
+      : [
+          ...node.def.modules.map((name) => ({ name })),
+          ...node.def.candidates,
+        ];
   if (cards.length > 0) {
     const n = cards.length;
     const rowW = n * CANDIDATE_W + (n - 1) * CANDIDATE_GAP;
