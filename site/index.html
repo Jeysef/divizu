@@ -3,12 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>divizu — dependency-injection diagrams in your browser</title>
+    <title>divizu — dependency-injection diagrams</title>
     <meta
       name="description"
-      content="divizu is a zero-dependency DSL-to-SVG playground for hardware-slot dependency-injection diagrams."
+      content="A deterministic DSL-to-SVG playground for hardware-slot dependency-injection diagrams."
     />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#08060d" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
@@ -19,8 +19,8 @@
       <div class="shell header-inner">
         <a class="brand" href="./" aria-label="divizu home">
           <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="1" y="1" width="22" height="22" rx="5" fill="currentColor" />
-            <rect x="7" y="15" width="10" height="2.5" rx="1.25" fill="#ffffff" />
+            <rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" stroke-width="1.8" />
+            <rect x="8" y="19" width="8" height="2.4" rx="1.2" fill="currentColor" />
           </svg>
           <span>divizu</span>
           <span class="version">v0.1</span>
@@ -41,91 +41,165 @@
 
     <main>
       <section class="hero shell">
-        <p class="eyebrow">divizu</p>
-        <h1>Dependency injection,<br />drawn like hardware.</h1>
-        <p class="lede">A small DSL that compiles to deterministic SVG.</p>
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="status-dot"></span> v0.1 · DSL → SVG</p>
+          <h1>Dependency injection,<br />drawn like hardware.</h1>
+          <p class="lede">
+            Write the wiring as a small declarative DSL. Get a deterministic SVG
+            with sockets, plugs, and modules that match the graph.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#playground">Open playground</a>
+            <a class="btn" href="./docs.html">Read the docs</a>
+          </div>
+        </div>
+
+        <aside class="hero-card" aria-label="DSL example">
+          <div class="card-bar">
+            <span class="label">example.di</span>
+            <span class="card-bar-meta">root · composite · adapter</span>
+          </div>
+          <pre><code><span class="tk-key">CheckoutApi</span> <span class="tk-str">"root"</span> {
+  <span class="tk-key">role:</span> root
+  <span class="tk-key">socket</span> OrderUseCase &lt;- OrderService
+  <span class="tk-key">socket</span> ReportPort
+}
+
+<span class="tk-key">OrderService</span> <span class="tk-str">"composite"</span> {
+  <span class="tk-key">role:</span> composite
+  <span class="tk-key">modules:</span> Validator, Pricing, Mapper
+  <span class="tk-key">socket</span> PaymentPort &lt;- Stripe
+}</code></pre>
+        </aside>
       </section>
 
       <section class="shell" id="playground" aria-label="divizu playground">
         <div class="workspace">
-          <section class="panel editor-panel" aria-label="DSL source">
-            <div class="pane-head">
-              <div class="pane-title">
-                <span class="dot dot-orange" aria-hidden="true"></span>
-                Source
-              </div>
-              <label class="select-label">
-                <span class="sr-only">Example</span>
+          <div class="workspace-bar">
+            <div class="workspace-file">
+              <span class="file-mark" aria-hidden="true"></span>
+              <span id="file-name">checkout.di</span>
+              <span class="file-kind">DSL</span>
+            </div>
+            <div class="workspace-actions">
+              <label class="field">
+                <span class="field-label">Example</span>
                 <select id="example" aria-label="Load an example">
-                  <option value="custom">Custom DSL</option>
+                  <option value="custom">Custom</option>
                   <option value="checkout">Checkout</option>
                   <option value="candidates">Candidates</option>
                 </select>
               </label>
+              <button class="btn" id="copy" type="button" disabled>Copy link</button>
+              <button class="btn btn-primary" id="download" type="button" disabled>Download SVG</button>
             </div>
+          </div>
 
-            <div class="editor-body">
-              <textarea
-                id="editor"
-                class="editor"
-                spellcheck="false"
-                autocapitalize="off"
-                autocomplete="off"
-                autocorrect="off"
-                aria-label="divizu DSL editor"
-              ></textarea>
-            </div>
-
-            <div class="pane-foot">
-              <span class="hint"><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> to render</span>
-              <div class="actions">
-                <button class="btn" id="copy" type="button">Copy share link</button>
-                <button class="btn btn-primary" id="download" type="button" disabled>
-                  Download SVG
-                </button>
+          <div class="workspace-body">
+            <section class="panel editor-panel" aria-label="DSL source">
+              <div class="pane-head">
+                <span class="label">Source</span>
+                <span class="pane-meta">Ctrl / ⌘ + Enter</span>
               </div>
-            </div>
-          </section>
-
-          <section class="panel preview-panel" aria-label="Rendered preview">
-            <div class="pane-head">
-              <div class="pane-title">
-                <span class="dot dot-blue" aria-hidden="true"></span>
-                Preview
-                <span class="chip" id="dims" aria-live="polite">—</span>
+              <div class="editor-wrap">
+                <pre class="gutter" id="gutter" aria-hidden="true">1</pre>
+                <textarea
+                  id="editor"
+                  class="editor"
+                  spellcheck="false"
+                  autocapitalize="off"
+                  autocomplete="off"
+                  autocorrect="off"
+                  aria-label="divizu DSL editor"
+                ></textarea>
               </div>
-              <label class="select-label">
-                <span class="sr-only">Theme</span>
-                <select id="theme" aria-label="Render theme">
-                  <option value="light" selected>Light</option>
-                  <option value="dark">Dark</option>
-                  <option value="auto">Auto</option>
-                </select>
-              </label>
-            </div>
+            </section>
 
-            <p class="error" id="error" role="alert" hidden></p>
-            <div class="preview" id="preview">
-              <div class="preview-empty">Loading renderer…</div>
-            </div>
-            <div class="statusbar">
-              <span id="status">Starting…</span>
-              <span class="statusbar-note">rendered locally · <span id="blocks">0</span> blocks</span>
-            </div>
-          </section>
+            <section class="panel preview-panel" aria-label="Rendered preview">
+              <div class="pane-head">
+                <span class="label">Preview</span>
+                <span class="pane-meta" id="dims" aria-live="polite">—</span>
+                <label class="field field-inline">
+                  <span class="sr-only">Theme</span>
+                  <select id="theme" aria-label="Render theme">
+                    <option value="dark" selected>Dark</option>
+                    <option value="light">Light</option>
+                    <option value="auto">Auto</option>
+                  </select>
+                </label>
+              </div>
+
+              <p class="error" id="error" role="alert" hidden></p>
+              <div class="preview" id="preview">
+                <div class="preview-empty">Loading renderer…</div>
+              </div>
+            </section>
+          </div>
+
+          <div class="workspace-status">
+            <span id="status">Starting…</span>
+            <span><span id="blocks">0</span> blocks · rendered locally</span>
+          </div>
         </div>
       </section>
 
+      <section class="features shell" aria-label="How it works">
+        <article class="card">
+          <span class="card-index">01 / LAYOUT</span>
+          <h2>Ports reserve space.</h2>
+          <p>
+            Every socket reserves the wider of its own notch and its child subtree,
+            so wide services cannot cover neighbouring ports.
+          </p>
+        </article>
+        <article class="card">
+          <span class="card-index">02 / GEOMETRY</span>
+          <h2>No runtime measurement.</h2>
+          <p>
+            Character widths come from a monospace grid. The same DSL produces the
+            same SVG on every machine, without a browser engine.
+          </p>
+        </article>
+        <article class="card">
+          <span class="card-index">03 / OUTPUT</span>
+          <h2>Hardware, not boxes.</h2>
+          <p>
+            Sockets, plugs, bottom-left labels, and vertical candidate cards make
+            wiring mistakes visible before runtime.
+          </p>
+        </article>
+      </section>
     </main>
 
     <footer class="site-footer">
-      <div class="shell footer-inner">
-        <span>divizu · DSL → SVG</span>
-        <nav aria-label="Footer">
+      <div class="shell footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href="./">
+            <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" stroke-width="1.8" />
+              <rect x="8" y="19" width="8" height="2.4" rx="1.2" fill="currentColor" />
+            </svg>
+            <span>divizu</span>
+          </a>
+          <p>A deterministic DSL for dependency-injection diagrams.</p>
+        </div>
+
+        <div class="footer-col">
+          <span class="label">Product</span>
+          <a href="./">Playground</a>
           <a href="./docs.html">Documentation</a>
-          <a href="./examples/checkout.di">checkout.di</a>
-          <a href="https://github.com/Jeysef/divizu">Source</a>
-        </nav>
+        </div>
+
+        <div class="footer-col">
+          <span class="label">Source</span>
+          <a href="https://github.com/Jeysef/divizu">GitHub</a>
+          <a href="./docs.html#cli">CLI &amp; API</a>
+        </div>
+      </div>
+
+      <div class="shell footer-bottom">
+        <span>divizu · DSL → SVG</span>
+        <span>MIT · no runtime dependencies</span>
       </div>
     </footer>
 

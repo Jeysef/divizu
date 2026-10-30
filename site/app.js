@@ -7,7 +7,6 @@ const EXAMPLES = {
 
 const FALLBACK_DSL = `Root "composition root" {
   role: root
-  modules: Registry, Config
   socket LoggerPort
   socket PaymentPort <- StripePayment
 }
@@ -27,6 +26,8 @@ const exampleSelect = document.querySelector("#example");
 const themeSelect = document.querySelector("#theme");
 const downloadButton = document.querySelector("#download");
 const copyButton = document.querySelector("#copy");
+const gutter = document.querySelector("#gutter");
+const fileName = document.querySelector("#file-name");
 
 let currentSvg = "";
 let currentFile = "diagram";
@@ -38,6 +39,15 @@ copyButton.disabled = true;
 
 function messageOf(error) {
   return error instanceof Error ? error.message : String(error);
+}
+
+function updateGutter() {
+  if (!gutter) return;
+  const lines = editor.value.split("\n").length;
+  let out = "";
+  for (let i = 1; i <= lines; i++) out += i + (i < lines ? "\n" : "");
+  gutter.textContent = out || "1";
+  gutter.scrollTop = editor.scrollTop;
 }
 
 function readHash() {
@@ -120,7 +130,7 @@ function renderNow({ updateHash = true } = {}) {
   lastValidDsl = dsl;
   preview.innerHTML = result.svg;
   dims.textContent = `${result.width} × ${result.height}`;
-  statusLine.textContent = `Rendered deterministically at ${result.width} × ${result.height}px`;
+  statusLine.textContent = `Rendered ${result.width} × ${result.height}`;
   blocksOut.textContent = String(blockCount);
   downloadButton.disabled = false;
   copyButton.disabled = false;
@@ -150,6 +160,8 @@ async function loadExample(id) {
     editor.value = text;
     editor.scrollTop = 0;
     currentFile = id;
+    if (fileName) fileName.textContent = `${id}.di`;
+    updateGutter();
     renderNow();
   } catch (error) {
     const message = `Could not load ${file}: ${messageOf(error)}`;
@@ -207,7 +219,7 @@ async function copyShareLink() {
   window.clearTimeout(copyReset);
   copyButton.textContent = "Copied!";
   copyReset = window.setTimeout(() => {
-    copyButton.textContent = "Copy share link";
+    copyButton.textContent = "Copy link";
   }, 1600);
 }
 
@@ -221,8 +233,16 @@ themeSelect.addEventListener("change", () => {
 });
 
 editor.addEventListener("input", () => {
-  if (!loadingExample) exampleSelect.value = "custom";
+  if (!loadingExample) {
+    exampleSelect.value = "custom";
+    if (fileName) fileName.textContent = "custom.di";
+  }
+  updateGutter();
   scheduleRender();
+});
+
+editor.addEventListener("scroll", () => {
+  if (gutter) gutter.scrollTop = editor.scrollTop;
 });
 
 editor.addEventListener("keydown", (event) => {
@@ -252,6 +272,7 @@ window.addEventListener("hashchange", () => {
   renderNow({ updateHash: false });
 });
 
+updateGutter();
 const initial = readHash();
 if (initial !== null) {
   editor.value = initial;
