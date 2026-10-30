@@ -102,9 +102,10 @@
             <li><a href="#modules"><span class="toc-num">05</span>Internal modules</a></li>
             <li><a href="#candidates"><span class="toc-num">06</span>Candidates</a></li>
             <li><a href="#dsl"><span class="toc-num">07</span>DSL reference</a></li>
-            <li><a href="#cli"><span class="toc-num">08</span>CLI &amp; API</a></li>
-            <li><a href="#theming"><span class="toc-num">09</span>Theming</a></li>
-            <li><a href="#limits"><span class="toc-num">10</span>Limits</a></li>
+            <li><a href="#scale"><span class="toc-num">08</span>Scaling</a></li>
+            <li><a href="#cli"><span class="toc-num">09</span>CLI &amp; API</a></li>
+            <li><a href="#theming"><span class="toc-num">10</span>Theming</a></li>
+            <li><a href="#limits"><span class="toc-num">11</span>Limits</a></li>
           </ol>
           <div class="doc-nav-foot">
             <p>One page. No generated navigation.</p>
@@ -542,9 +543,112 @@
             </p>
           </section>
 
-          <section class="doc-section prose" id="cli">
+          <section class="doc-section prose" id="scale">
             <header class="doc-sec-head">
               <span class="doc-sec-num">08</span>
+              <h2>Scaling a large codebase</h2>
+              <span class="doc-sec-file">layout / forest</span>
+            </header>
+
+            <p>
+              Large systems are not drawn as one god diagram. The unit is a
+              <strong>plate</strong>: one readable bounded context, normally
+              5–25 blocks. For a whole repository, start with a system map with
+              one root per entry point — storefront, operator console, workers,
+              data platform — and let the renderer lay the roots side by side.
+            </p>
+            <p>
+              Each root keeps its own subtree. Shared providers are duplicated
+              per socket by design, so every plate stays honest instead of
+              growing crossing edges. Use <code>modules:</code> to compress
+              internals, unbound sockets to stop at external systems, and
+              <code>candidates:</code> for alternatives.
+            </p>
+
+            <div class="note">
+              <strong>The guard is not a target.</strong> The renderer accepts
+              up to 5,000 instances, but a 200-block plate is technically valid
+              and practically unreadable. Split by bounded context long before
+              you reach the guard.
+            </div>
+
+            <h3>Atlas Commerce / 28 blocks</h3>
+            <p>
+              This imagined commerce platform is one file with three roots:
+              storefront, operator console, and async workers. Every provider
+              has one parent; no subtree is duplicated. The full plate is the
+              system map — each context can be rendered separately for a closer
+              read.
+            </p>
+
+            <figure class="doc-figure doc-figure-wide">
+              <div class="doc-figure-head">
+                <span class="fig-id">FIG. 03</span>
+                <span class="fig-name">examples/large.svg</span>
+                <span class="fig-size">3217 × 674 / 28 blocks</span>
+                <a class="fig-open" href="./examples/large.svg">Open SVG ↗</a>
+              </div>
+              <div
+                class="doc-figure-stage is-pannable"
+                data-svg="./examples/large.svg"
+              >
+                <img
+                  src="./examples/large.svg"
+                  alt="A 28-block Atlas Commerce system map with storefront, operator console and async worker roots"
+                  width="3217"
+                  height="674"
+                />
+              </div>
+              <figcaption>
+                One 28-block plate across three roots. Scroll horizontally to
+                pan the sheet; open the SVG for full resolution.
+              </figcaption>
+            </figure>
+
+            <h3>Keeping it maintainable</h3>
+            <ul>
+              <li>
+                <strong>One root per entry point.</strong> Web, admin, workers
+                and batch jobs are separate roots, not a single tree.
+              </li>
+              <li>
+                <strong>Split at boundaries.</strong> One plate per bounded
+                context; the system map is an index, not the whole book.
+              </li>
+              <li>
+                <strong>Compress internals.</strong> Put validators, policies
+                and repositories in <code>modules:</code> rather than giving
+                every class a socket.
+              </li>
+              <li>
+                <strong>Stop at externals.</strong> Leave a socket unbound when
+                the dependency lives outside the diagram — a queue, a vendor,
+                another team's service.
+              </li>
+              <li>
+                <strong>Let shared providers duplicate.</strong> A provider
+                referenced twice is drawn twice with unique keys. That is
+                clearer than one line crossing half the plate.
+              </li>
+            </ul>
+
+            <p>
+              This 28-block map renders in about 0.6 ms in Node and a few
+              milliseconds in the browser. The compiler scales; the reading
+              limit is yours. The
+              <a href="./playground.html">playground</a> includes this plate as
+              the <strong>Large map</strong> example, with zoom and pan.
+            </p>
+            <p>
+              Source:
+              <a href="./examples/large.di">examples/large.di</a> · Output:
+              <a href="./examples/large.svg">examples/large.svg</a>
+            </p>
+          </section>
+
+          <section class="doc-section prose" id="cli">
+            <header class="doc-sec-head">
+              <span class="doc-sec-num">09</span>
               <h2>CLI &amp; API</h2>
               <span class="doc-sec-file">src/cli.ts</span>
             </header>
@@ -616,7 +720,7 @@ cat graph.di | diviz [options]</code></pre>
 
           <section class="doc-section prose" id="theming">
             <header class="doc-sec-head">
-              <span class="doc-sec-num">09</span>
+              <span class="doc-sec-num">10</span>
               <h2>Theming</h2>
               <span class="doc-sec-file">theme.css / vars</span>
             </header>
@@ -656,7 +760,7 @@ cat graph.di | diviz [options]</code></pre>
 
           <section class="doc-section prose" id="limits">
             <header class="doc-sec-head">
-              <span class="doc-sec-num">10</span>
+              <span class="doc-sec-num">11</span>
               <h2>Deliberate limits</h2>
               <span class="doc-sec-file">/limits</span>
             </header>

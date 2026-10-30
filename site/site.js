@@ -71,6 +71,43 @@ function wireCopyButtons() {
   });
 }
 
+function wirePannable() {
+  $$(".is-pannable").forEach((panel) => {
+    let active = false;
+    let startX = 0;
+    let startScroll = 0;
+
+    panel.addEventListener("pointerdown", (event) => {
+      if (event.pointerType !== "mouse" || event.button !== 0) return;
+      active = true;
+      startX = event.clientX;
+      startScroll = panel.scrollLeft;
+      panel.classList.add("is-dragging");
+      panel.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    });
+
+    panel.addEventListener("pointermove", (event) => {
+      if (!active) return;
+      panel.scrollLeft = startScroll - (event.clientX - startX);
+    });
+
+    const stop = (event) => {
+      if (!active) return;
+      active = false;
+      panel.classList.remove("is-dragging");
+      try {
+        panel.releasePointerCapture(event.pointerId);
+      } catch {
+        /* The pointer may already be released. */
+      }
+    };
+
+    panel.addEventListener("pointerup", stop);
+    panel.addEventListener("pointercancel", stop);
+  });
+}
+
 function wireDocs() {
   const sections = $$(".doc-section[id]");
   const links = $$(".doc-nav a[href^='#']");
@@ -122,5 +159,6 @@ function wireYear() {
 
 inlineExamples();
 wireCopyButtons();
+wirePannable();
 wireDocs();
 wireYear();

@@ -2125,6 +2125,37 @@ ol {
   white-space: nowrap;
 }
 
+.doc-figure-head .fig-open {
+  color: var(--paper);
+  white-space: nowrap;
+}
+
+.doc-figure-head .fig-open:hover {
+  color: var(--accent-bright);
+}
+
+.doc-figure-stage.is-pannable {
+  display: block !important;
+  max-height: 540px;
+  padding: 20px;
+  overflow: auto;
+  place-items: initial;
+  text-align: left;
+  cursor: grab;
+}
+
+.doc-figure-stage.is-pannable svg,
+.doc-figure-stage.is-pannable img {
+  width: 2200px;
+  max-width: none;
+  height: auto;
+  margin: 0;
+}
+
+.doc-figure-stage.is-pannable.is-dragging {
+  cursor: grabbing;
+}
+
 .doc-figure-stage {
   display: grid;
   padding: 22px;

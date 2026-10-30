@@ -133,4 +133,5 @@ Reference:
 
 - Manual: https://jeysef.github.io/divizu/docs.html
 - Quickstart: https://jeysef.github.io/divizu/examples/quickstart.di
+- Large system map (28 blocks): https://jeysef.github.io/divizu/examples/large.di
 - llms.txt: https://jeysef.github.io/divizu/llms.txt

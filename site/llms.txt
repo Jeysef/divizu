@@ -15,6 +15,7 @@ DSL.
 - Reference manual: https://jeysef.github.io/divizu/docs.html
 - Quickstart source: https://jeysef.github.io/divizu/examples/quickstart.di
 - Quickstart output: https://jeysef.github.io/divizu/examples/quickstart.svg
+- Large system map (28 blocks): https://jeysef.github.io/divizu/examples/large.di
 
 ## Use it
 

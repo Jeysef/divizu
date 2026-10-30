@@ -9,6 +9,7 @@ const EXAMPLES = {
   quickstart: "examples/quickstart.di",
   checkout: "examples/checkout.di",
   candidates: "examples/candidates.di",
+  large: "examples/large.di",
 };
 
 const FALLBACK_DSL = `CheckoutApi "DI container (root)" {
