@@ -361,7 +361,17 @@ ol {
   overflow: visible;
 }
 
-.brand-mark .mark-notch {
+.brand-mark .mark-field {
+  fill: var(--ink);
+}
+
+.brand-mark .mark-frame {
+  fill: none;
+  stroke: var(--paper);
+  stroke-width: 2;
+}
+
+.brand-mark .mark-tab {
   fill: var(--accent);
 }
 
