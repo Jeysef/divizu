@@ -6,7 +6,14 @@
  * No DOM, no headless browser, no text measurement APIs.
  */
 
-export type BlockRole = "root" | "composite" | "adapter" | "service" | "port";
+export type BlockRole =
+  | "root"
+  | "composite"
+  | "adapter"
+  | "service"
+  | "port"
+  | "layer"
+  | "context";
 
 export interface SocketDef {
   portName: string;
@@ -243,10 +250,12 @@ function parseBody(
         raw !== "composite" &&
         raw !== "adapter" &&
         raw !== "service" &&
-        raw !== "port"
+        raw !== "port" &&
+        raw !== "layer" &&
+        raw !== "context"
       ) {
         throw new Error(
-          `Unknown role "${raw}" on block "${id}" (line ${li + 1} of its body). Expected root, composite, adapter, service, or port.`,
+          `Unknown role "${raw}" on block "${id}" (line ${li + 1} of its body). Expected root, composite, adapter, service, port, layer, or context.`,
         );
       }
       def.role = raw as BlockRole;
@@ -984,7 +993,11 @@ function renderBlock(
         ? palette.strokeService
         : node.def.role === "port"
           ? palette.strokePort
-          : palette.strokeContainer;
+          : node.def.role === "layer"
+            ? palette.strokeLayer
+            : node.def.role === "context"
+              ? palette.strokeContext
+              : palette.strokeContainer;
 
   const parts: string[] = [];
   parts.push(
@@ -1187,6 +1200,8 @@ interface Palette {
   strokeAdapter: string;
   strokeService: string;
   strokePort: string;
+  strokeLayer: string;
+  strokeContext: string;
   fg: string;
   muted: string;
   moduleBg: string;
@@ -1200,41 +1215,45 @@ interface Palette {
 }
 
 const DARK: Palette = {
-  canvasBg: "#18191c",
-  surface: "#26272b",
-  strokeContainer: "#ea580c",
-  strokeAdapter: "#f59e0b",
-  strokeService: "#3b82f6",
-  strokePort: "#10b981",
-  fg: "#f4f4f6",
-  muted: "#9ca3af",
-  moduleBg: "#2e3036",
-  moduleBorder: "#4b5563",
-  moduleFg: "#d1d5db",
-  pillBg: "#6d5dfc",
-  pillText: "#f4f4f6",
-  pillUnbound: "#7c6df2",
-  pillUnboundBg: "#241f3d",
-  pillUnboundText: "#d6ccff",
+  canvasBg: "#0f0f0c",
+  surface: "#191914",
+  strokeContainer: "#f1602f",
+  strokeAdapter: "#d7a24a",
+  strokeService: "#6f9fce",
+  strokePort: "#a9c46a",
+  strokeLayer: "#a78bfa",
+  strokeContext: "#2dd4bf",
+  fg: "#ece7da",
+  muted: "#918b7d",
+  moduleBg: "#22221c",
+  moduleBorder: "#454338",
+  moduleFg: "#d2ccbe",
+  pillBg: "#345b78",
+  pillText: "#edf2f0",
+  pillUnbound: "#b28a42",
+  pillUnboundBg: "#211d13",
+  pillUnboundText: "#e6c88e",
 };
 
 const LIGHT: Palette = {
-  canvasBg: "#f6f7fb",
-  surface: "#ffffff",
+  canvasBg: "#f2ede0",
+  surface: "#fffdf7",
   strokeContainer: "#c2410c",
-  strokeAdapter: "#b45309",
-  strokeService: "#2563eb",
-  strokePort: "#047857",
-  fg: "#111827",
-  muted: "#6b7280",
-  moduleBg: "#f3f4f6",
-  moduleBorder: "#d1d5db",
-  moduleFg: "#374151",
-  pillBg: "#5b4bdb",
-  pillText: "#ffffff",
-  pillUnbound: "#6d5df2",
-  pillUnboundBg: "#f0edff",
-  pillUnboundText: "#4338ca",
+  strokeAdapter: "#9a6b12",
+  strokeService: "#2b5e98",
+  strokePort: "#4f6f13",
+  strokeLayer: "#7c3aed",
+  strokeContext: "#0f766e",
+  fg: "#17150f",
+  muted: "#6f6a5d",
+  moduleBg: "#f1ede1",
+  moduleBorder: "#c9c3b2",
+  moduleFg: "#343128",
+  pillBg: "#285c7a",
+  pillText: "#f7fbfc",
+  pillUnbound: "#8a6a1f",
+  pillUnboundBg: "#f6efd9",
+  pillUnboundText: "#6d520f",
 };
 
 const VAR_NAMES: ReadonlyArray<[keyof Palette, string]> = [
@@ -1244,6 +1263,8 @@ const VAR_NAMES: ReadonlyArray<[keyof Palette, string]> = [
   ["strokeAdapter", "--di-stroke-adapter"],
   ["strokeService", "--di-stroke-service"],
   ["strokePort", "--di-stroke-port"],
+  ["strokeLayer", "--di-stroke-layer"],
+  ["strokeContext", "--di-stroke-context"],
   ["fg", "--di-fg"],
   ["muted", "--di-muted"],
   ["moduleBg", "--di-module-bg"],
@@ -1305,6 +1326,12 @@ export const THEME_CSS = [
   "}",
   ":where(.di-viz) .di-role-port .di-body {",
   "  stroke: var(--di-stroke-port);",
+  "}",
+  ":where(.di-viz) .di-role-layer .di-body {",
+  "  stroke: var(--di-stroke-layer);",
+  "}",
+  ":where(.di-viz) .di-role-context .di-body {",
+  "  stroke: var(--di-stroke-context);",
   "}",
   ":where(.di-viz) .di-pill {",
   "  fill: var(--di-pill-bg);",

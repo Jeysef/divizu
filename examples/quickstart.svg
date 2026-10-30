@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 887 468" width="887" height="468" class="di-viz" data-theme="auto" role="img" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace">
+  <title>CheckoutApi dependency injection diagram</title>
+  <style>:where(.di-viz) {
+  --di-canvas-bg: #0f0f0c;
+  --di-surface: #191914;
+  --di-stroke-container: #f1602f;
+  --di-stroke-adapter: #d7a24a;
+  --di-stroke-service: #6f9fce;
+  --di-stroke-port: #a9c46a;
+  --di-stroke-layer: #a78bfa;
+  --di-stroke-context: #2dd4bf;
+  --di-fg: #ece7da;
+  --di-muted: #918b7d;
+  --di-module-bg: #22221c;
+  --di-module-border: #454338;
+  --di-module-fg: #d2ccbe;
+  --di-pill-bg: #345b78;
+  --di-pill-text: #edf2f0;
+  --di-pill-unbound: #b28a42;
+  --di-pill-unbound-bg: #211d13;
+  --di-pill-unbound-text: #e6c88e;
+  --di-font: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  display: block;
+}
+:where(.di-viz:not([data-responsive="true"])) {
+  max-width: 100%;
+  height: auto;
+}
+@media (prefers-color-scheme: light) {
+  :where(.di-viz[data-theme="auto"]) {
+    --di-canvas-bg: #f2ede0;
+    --di-surface: #fffdf7;
+    --di-stroke-container: #c2410c;
+    --di-stroke-adapter: #9a6b12;
+    --di-stroke-service: #2b5e98;
+    --di-stroke-port: #4f6f13;
+    --di-stroke-layer: #7c3aed;
+    --di-stroke-context: #0f766e;
+    --di-fg: #17150f;
+    --di-muted: #6f6a5d;
+    --di-module-bg: #f1ede1;
+    --di-module-border: #c9c3b2;
+    --di-module-fg: #343128;
+    --di-pill-bg: #285c7a;
+    --di-pill-text: #f7fbfc;
+    --di-pill-unbound: #8a6a1f;
+    --di-pill-unbound-bg: #f6efd9;
+    --di-pill-unbound-text: #6d520f;
+  }
+}
+:where(.di-viz[data-theme="light"]) {
+  --di-canvas-bg: #f2ede0;
+  --di-surface: #fffdf7;
+  --di-stroke-container: #c2410c;
+  --di-stroke-adapter: #9a6b12;
+  --di-stroke-service: #2b5e98;
+  --di-stroke-port: #4f6f13;
+  --di-stroke-layer: #7c3aed;
+  --di-stroke-context: #0f766e;
+  --di-fg: #17150f;
+  --di-muted: #6f6a5d;
+  --di-module-bg: #f1ede1;
+  --di-module-border: #c9c3b2;
+  --di-module-fg: #343128;
+  --di-pill-bg: #285c7a;
+  --di-pill-text: #f7fbfc;
+  --di-pill-unbound: #8a6a1f;
+  --di-pill-unbound-bg: #f6efd9;
+  --di-pill-unbound-text: #6d520f;
+}
+:where(.di-viz[data-theme="dark"]) {
+  --di-canvas-bg: #0f0f0c;
+  --di-surface: #191914;
+  --di-stroke-container: #f1602f;
+  --di-stroke-adapter: #d7a24a;
+  --di-stroke-service: #6f9fce;
+  --di-stroke-port: #a9c46a;
+  --di-stroke-layer: #a78bfa;
+  --di-stroke-context: #2dd4bf;
+  --di-fg: #ece7da;
+  --di-muted: #918b7d;
+  --di-module-bg: #22221c;
+  --di-module-border: #454338;
+  --di-module-fg: #d2ccbe;
+  --di-pill-bg: #345b78;
+  --di-pill-text: #edf2f0;
+  --di-pill-unbound: #b28a42;
+  --di-pill-unbound-bg: #211d13;
+  --di-pill-unbound-text: #e6c88e;
+}
+:where(.di-viz) .di-canvas {
+  fill: var(--di-canvas-bg);
+}
+:where(.di-viz) .di-body {
+  fill: var(--di-surface);
+}
+:where(.di-viz) .di-role-adapter .di-body {
+  stroke: var(--di-stroke-adapter);
+}
+:where(.di-viz) .di-role-root .di-body {
+  stroke: var(--di-stroke-container);
+}
+:where(.di-viz) .di-role-composite .di-body,
+:where(.di-viz) .di-role-service .di-body {
+  stroke: var(--di-stroke-service);
+}
+:where(.di-viz) .di-role-port .di-body {
+  stroke: var(--di-stroke-port);
+}
+:where(.di-viz) .di-role-layer .di-body {
+  stroke: var(--di-stroke-layer);
+}
+:where(.di-viz) .di-role-context .di-body {
+  stroke: var(--di-stroke-context);
+}
+:where(.di-viz) .di-pill {
+  fill: var(--di-pill-bg);
+}
+:where(.di-viz) .di-pill-unbound {
+  fill: var(--di-pill-unbound-bg);
+  stroke: var(--di-pill-unbound);
+}
+:where(.di-viz) .di-pill-label {
+  fill: var(--di-pill-text);
+}
+:where(.di-viz) .di-socket-unbound .di-pill-label {
+  fill: var(--di-pill-unbound-text);
+}
+:where(.di-viz) .di-title {
+  fill: var(--di-fg);
+}
+:where(.di-viz) .di-subtitle {
+  fill: var(--di-muted);
+}
+:where(.di-viz) .di-module rect {
+  fill: var(--di-module-bg);
+  stroke: var(--di-module-border);
+}
+:where(.di-viz) .di-module text {
+  fill: var(--di-module-fg);
+}
+:where(.di-viz) text {
+  font-family: var(--di-font, ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace);
+}</style>
+  <rect class="di-canvas" x="0" y="0" width="887" height="468" fill="#0f0f0c" />
+  <g class="di-block di-role-root" data-block-id="CheckoutApi" data-key="CheckoutApi"><path class="di-body" d="M 32 326 Q 32 316 42 316 L 114.8 316 Q 124.8 316 124.8 326 L 124.8 354 Q 124.8 364 134.8 364 L 210.8 364 Q 220.8 364 220.8 354 L 220.8 326 Q 220.8 316 230.8 316 L 283.6 316 Q 293.6 316 293.6 326 L 293.6 354 Q 293.6 364 303.6 364 L 397.8 364 Q 407.8 364 407.8 354 L 407.8 326 Q 407.8 316 417.8 316 L 478.5 316 Q 488.5 316 488.5 326 L 488.5 354 Q 488.5 364 498.5 364 L 577.1 364 Q 587.1 364 587.1 354 L 587.1 326 Q 587.1 316 597.1 316 L 683 316 Q 693 316 693 326 L 693 354 Q 693 364 703 364 L 779 364 Q 789 364 789 354 L 789 326 Q 789 316 799 316 L 845 316 Q 855 316 855 326 L 855 426 Q 855 436 845 436 L 42 436 Q 32 436 32 426 Z" fill="#191914" stroke="#f1602f" stroke-width="3.5" stroke-linejoin="round" /><g class="di-socket di-socket-bound"><title>Orders ← OrderService</title><rect class="di-pill" x="132.8" y="336" width="80" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="172.8" y="351" text-anchor="middle" fill="#edf2f0" font-size="11.5">Orders</text></g><g class="di-socket di-socket-unbound"><title>Telemetry (unbound)</title><rect class="di-pill di-pill-unbound" x="301.6" y="336" width="98.2" height="22" rx="11" fill="#211d13" stroke="#b28a42" stroke-width="1.5" stroke-dasharray="4 3" /><text class="di-pill-label" x="350.7" y="351" text-anchor="middle" fill="#e6c88e" font-size="11.5">Telemetry</text></g><g class="di-socket di-socket-bound"><title>Catalog ← PostgresCatalog</title><rect class="di-pill" x="496.5" y="336" width="82.6" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="537.8" y="351" text-anchor="middle" fill="#edf2f0" font-size="11.5">Catalog</text></g><g class="di-socket di-socket-bound"><title>Config ← AppConfig</title><rect class="di-pill" x="701" y="336" width="80" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="741" y="351" text-anchor="middle" fill="#edf2f0" font-size="11.5">Config</text></g><text class="di-title" x="48" y="422" text-anchor="start" fill="#ece7da" font-size="15" font-weight="600">CheckoutApi</text><text class="di-subtitle" x="48" y="405" text-anchor="start" fill="#918b7d" font-size="11.5">root</text></g>
+  <g class="di-block di-role-composite" data-block-id="OrderService" data-key="CheckoutApi/0:OrderService"><path class="di-body" d="M 72 116 Q 72 106 82 106 L 109.6 106 Q 119.6 106 119.6 116 L 119.6 144 Q 119.6 154 129.6 154 L 216 154 Q 226 154 226 144 L 226 116 Q 226 106 236 106 L 263.6 106 Q 273.6 106 273.6 116 L 273.6 296 Q 273.6 306 263.6 306 L 220.8 306 Q 210.8 306 210.8 316 L 210.8 320 Q 210.8 330 200.8 330 L 144.8 330 Q 134.8 330 134.8 320 L 134.8 316 Q 134.8 306 124.8 306 L 82 306 Q 72 306 72 296 Z" fill="#191914" stroke="#6f9fce" stroke-width="3.5" stroke-linejoin="round" /><g class="di-socket di-socket-bound"><title>Payments ← StripeAdapter</title><rect class="di-pill" x="127.6" y="126" width="90.4" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="172.8" y="141" text-anchor="middle" fill="#edf2f0" font-size="11.5">Payments</text></g><text class="di-title" x="88" y="292" text-anchor="start" fill="#ece7da" font-size="15" font-weight="600">OrderService</text><text class="di-subtitle" x="88" y="275" text-anchor="start" fill="#918b7d" font-size="11.5">composite</text><g class="di-module"><rect x="90" y="172" width="165.6" height="28" rx="5" fill="#22221c" stroke="#454338" stroke-width="1" /><text x="102" y="190.5" text-anchor="start" fill="#d2ccbe" font-size="12">ValidateCart</text></g><g class="di-module"><rect x="90" y="208" width="165.6" height="28" rx="5" fill="#22221c" stroke="#454338" stroke-width="1" /><text x="102" y="226.5" text-anchor="start" fill="#d2ccbe" font-size="12">PriceOrder</text></g></g>
+  <g class="di-block di-role-adapter" data-block-id="StripeAdapter" data-key="CheckoutApi/0:OrderService/0:StripeAdapter"><path class="di-body" d="M 80.4 42 Q 80.4 32 90.4 32 L 255.2 32 Q 265.2 32 265.2 42 L 265.2 86 Q 265.2 96 255.2 96 L 226 96 Q 216 96 216 106 L 216 110 Q 216 120 206 120 L 139.6 120 Q 129.6 120 129.6 110 L 129.6 106 Q 129.6 96 119.6 96 L 90.4 96 Q 80.4 96 80.4 86 Z" fill="#191914" stroke="#d7a24a" stroke-width="3.5" stroke-linejoin="round" /><text class="di-title" x="172.8" y="69" text-anchor="middle" fill="#ece7da" font-size="13" font-weight="600">StripeAdapter</text></g>
+  <g class="di-block di-role-adapter" data-block-id="PostgresCatalog" data-key="CheckoutApi/2:PostgresCatalog"><path class="di-body" d="M 435.8 252 Q 435.8 242 445.8 242 L 629.8 242 Q 639.8 242 639.8 252 L 639.8 296 Q 639.8 306 629.8 306 L 587.1 306 Q 577.1 306 577.1 316 L 577.1 320 Q 577.1 330 567.1 330 L 508.5 330 Q 498.5 330 498.5 320 L 498.5 316 Q 498.5 306 488.5 306 L 445.8 306 Q 435.8 306 435.8 296 Z" fill="#191914" stroke="#d7a24a" stroke-width="3.5" stroke-linejoin="round" /><text class="di-title" x="537.8" y="279" text-anchor="middle" fill="#ece7da" font-size="13" font-weight="600">PostgresCatalog</text></g>
+  <g class="di-block di-role-context" data-block-id="AppConfig" data-key="CheckoutApi/3:AppConfig"><path class="di-body" d="M 667.8 252 Q 667.8 242 677.8 242 L 804.2 242 Q 814.2 242 814.2 252 L 814.2 296 Q 814.2 306 804.2 306 L 789 306 Q 779 306 779 316 L 779 320 Q 779 330 769 330 L 713 330 Q 703 330 703 320 L 703 316 Q 703 306 693 306 L 677.8 306 Q 667.8 306 667.8 296 Z" fill="#191914" stroke="#2dd4bf" stroke-width="3.5" stroke-linejoin="round" /><text class="di-title" x="741" y="279" text-anchor="middle" fill="#ece7da" font-size="13" font-weight="600">AppConfig</text></g>
+</svg>

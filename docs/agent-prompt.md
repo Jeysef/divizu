@@ -44,7 +44,7 @@ GOAL
 
 DSL GRAMMAR
   BlockId ["optional subtitle"] {
-    role: root | composite | adapter
+    role: root | composite | adapter | service | port | layer | context
     modules: Name, "Name, with comma", Name
     socket PortName
     socket PortName <- ProviderBlockId
@@ -78,7 +78,10 @@ RULES
   - Keep each diagram readable: roughly 5–25 blocks. Split large systems by
     bounded context or feature instead of drawing the whole monorepo.
   - Prefer `role: root` for the application/composition root, `composite`
-    for services that own dependencies, and `adapter` for leaves.
+    for services that own dependencies, `service` for a live implementation
+    with methods, `layer` for a constructor/wiring recipe, `context` for
+    plain injected values (config) with no methods and no live
+    implementation, and `adapter` for leaves.
   - Do not hand-write SVG coordinates.
   - Do not commit unless the user asks.
 

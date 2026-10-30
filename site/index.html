@@ -3,206 +3,257 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>divizu — dependency-injection diagrams</title>
+    <title>divizu — wiring in, hardware out</title>
     <meta
       name="description"
-      content="A deterministic DSL-to-SVG playground for hardware-slot dependency-injection diagrams."
+      content="Edit dependency-injection DSL and get deterministic hardware-slot diagrams as SVG. A small compiler that runs in your browser."
     />
-    <meta name="theme-color" content="#08060d" />
+    <meta name="theme-color" content="#0c0c0a" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      href="./fonts/archivo-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="./fonts/jetbrains-mono-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link rel="stylesheet" href="./styles.css" />
+    <script>
+      document.documentElement.classList.add("js");
+    </script>
   </head>
-  <body>
-    <a class="skip-link" href="#playground">Skip to playground</a>
+  <body class="page-home">
+    <a class="skip-link" href="#demo">Skip to live sample</a>
 
-    <header class="site-header">
-      <div class="shell header-inner">
+    <header class="topbar">
+      <div class="topbar-in">
         <a class="brand" href="./" aria-label="divizu home">
           <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" stroke-width="1.8" />
-            <rect x="8" y="19" width="8" height="2.4" rx="1.2" fill="currentColor" />
+            <path
+              d="M2.5 21.5V2.5h6v6h7v-6h6v19h-5.5v-4h-8v4H2.5Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            />
+            <rect class="mark-notch" x="10.5" y="13.4" width="3" height="2.2" />
           </svg>
-          <span>divizu</span>
-          <span class="version">v0.1</span>
+          <span class="brand-copy">
+            <span class="brand-name">divizu</span>
+            <span class="brand-sub">diagram compiler</span>
+          </span>
         </a>
 
-        <nav class="site-nav" aria-label="Primary">
-          <a href="./" aria-current="page">Playground</a>
-          <a href="./docs.html">Docs</a>
-          <a class="external" href="https://github.com/Jeysef/divizu">
-            GitHub
-            <svg viewBox="0 0 12 12" aria-hidden="true">
-              <path d="M3.5 2h6.5v6.5M10 2 2 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </a>
+        <nav class="topbar-nav" aria-label="Primary">
+          <a href="./playground.html"><span class="nav-num">01</span>Playground</a>
+          <a href="./docs.html"><span class="nav-num">02</span>Docs</a>
+          <a class="nav-ext" href="https://github.com/Jeysef/divizu"
+            ><span class="nav-num">03</span>GitHub ↗</a
+          >
         </nav>
+
+        <div class="topbar-end">
+          <span class="build-chip">v0.1.0</span>
+        </div>
       </div>
     </header>
 
-    <main>
-      <section class="hero shell">
-        <div class="hero-copy">
-          <p class="eyebrow"><span class="status-dot"></span> v0.1 · DSL → SVG</p>
-          <h1>Dependency injection,<br />drawn like hardware.</h1>
-          <p class="lede">
-            Write the wiring as a small declarative DSL. Get a deterministic SVG
-            with sockets, plugs, and modules that match the graph.
-          </p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#playground">Open playground</a>
-            <a class="btn" href="./docs.html">Read the docs</a>
-          </div>
-        </div>
-
-        <aside class="hero-card" aria-label="DSL example">
-          <div class="card-bar">
-            <span class="label">example.di</span>
-            <span class="card-bar-meta">root · composite · adapter</span>
-          </div>
-          <pre><code><span class="tk-key">CheckoutApi</span> <span class="tk-str">"root"</span> {
-  <span class="tk-key">role:</span> root
-  <span class="tk-key">socket</span> OrderUseCase &lt;- OrderService
-  <span class="tk-key">socket</span> ReportPort
-}
-
-<span class="tk-key">OrderService</span> <span class="tk-str">"composite"</span> {
-  <span class="tk-key">role:</span> composite
-  <span class="tk-key">modules:</span> Validator, Pricing, Mapper
-  <span class="tk-key">socket</span> PaymentPort &lt;- Stripe
-}</code></pre>
-        </aside>
-      </section>
-
-      <section class="shell" id="playground" aria-label="divizu playground">
-        <div class="workspace">
-          <div class="workspace-bar">
-            <div class="workspace-file">
-              <span class="file-mark" aria-hidden="true"></span>
-              <span id="file-name">checkout.di</span>
-              <span class="file-kind">DSL</span>
+    <main id="main">
+      <section class="home-intro">
+        <div class="shell">
+          <div class="intro-head">
+            <div>
+              <p class="overline">DSL → SVG / in this tab</p>
+              <h1>Wiring in.<br /><span class="accent">Hardware out.</span></h1>
             </div>
-            <div class="workspace-actions">
-              <label class="field">
-                <span class="field-label">Example</span>
-                <select id="example" aria-label="Load an example">
-                  <option value="custom">Custom</option>
-                  <option value="checkout">Checkout</option>
-                  <option value="candidates">Candidates</option>
-                </select>
-              </label>
-              <button class="btn" id="copy" type="button" disabled>Copy link</button>
-              <button class="btn btn-primary" id="download" type="button" disabled>Download SVG</button>
+            <div class="intro-side">
+              <p>
+                Edit the source. The plate redraws locally with real sockets,
+                plugs and modules.
+              </p>
+              <div class="intro-actions">
+                <a
+                  class="btn btn-solid"
+                  id="home-open"
+                  href="./playground.html"
+                >
+                  Full playground <span class="arrow" aria-hidden="true">→</span>
+                </a>
+                <a class="btn" href="./docs.html">Manual</a>
+              </div>
             </div>
           </div>
 
-          <div class="workspace-body">
-            <section class="panel editor-panel" aria-label="DSL source">
-              <div class="pane-head">
-                <span class="label">Source</span>
-                <span class="pane-meta">Ctrl / ⌘ + Enter</span>
-              </div>
-              <div class="editor-wrap">
-                <pre class="gutter" id="gutter" aria-hidden="true">1</pre>
-                <textarea
-                  id="editor"
-                  class="editor"
-                  spellcheck="false"
-                  autocapitalize="off"
-                  autocomplete="off"
-                  autocorrect="off"
-                  aria-label="divizu DSL editor"
-                ></textarea>
-              </div>
-            </section>
+          <div class="demo-frame" id="demo">
+            <div class="demo-bar">
+              <span class="demo-live">Live plate</span>
+              <span class="demo-file">quickstart.di</span>
+              <span class="demo-hint">editable / rendered locally</span>
+              <button class="copy-btn" id="home-reset" type="button">
+                Reset sample
+              </button>
+            </div>
 
-            <section class="panel preview-panel" aria-label="Rendered preview">
-              <div class="pane-head">
-                <span class="label">Preview</span>
-                <span class="pane-meta" id="dims" aria-live="polite">—</span>
-                <label class="field field-inline">
-                  <span class="sr-only">Theme</span>
-                  <select id="theme" aria-label="Render theme">
-                    <option value="dark" selected>Dark</option>
-                    <option value="light">Light</option>
-                    <option value="auto">Auto</option>
-                  </select>
-                </label>
-              </div>
+            <div class="demo-grid">
+              <section class="panel demo-source" aria-label="Sample DSL source">
+                <header class="panel-head">
+                  <div class="panel-title">
+                    <span class="panel-index">01</span>
+                    <h2>Source</h2>
+                    <span class="tag">quickstart.di</span>
+                  </div>
+                  <div class="panel-meta">
+                    <span id="home-lines">0 lines</span>
+                  </div>
+                </header>
 
-              <p class="error" id="error" role="alert" hidden></p>
-              <div class="preview" id="preview">
-                <div class="preview-empty">Loading renderer…</div>
-              </div>
-            </section>
+                <div class="editor">
+                  <div class="gutter" id="home-gutter" aria-hidden="true"></div>
+                  <div class="editor-stack">
+                    <pre
+                      class="highlight"
+                      id="home-highlight"
+                      aria-hidden="true"
+                    ></pre>
+                    <textarea
+                      class="editor-input"
+                      id="home-editor"
+                      wrap="off"
+                      spellcheck="false"
+                      autocapitalize="off"
+                      autocomplete="off"
+                      autocorrect="off"
+                      aria-label="Editable divizu DSL sample"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <footer class="panel-foot">
+                  <span class="state" id="home-state">ready</span>
+                  <span>Drag the source. It re-renders as you type.</span>
+                </footer>
+              </section>
+
+              <section class="panel demo-output" aria-label="Sample output">
+                <header class="panel-head">
+                  <div class="panel-title">
+                    <span class="panel-index">02</span>
+                    <h2>Output</h2>
+                    <span class="tag" id="home-view">SVG / dark</span>
+                  </div>
+                  <div class="panel-meta">
+                    <span id="home-dims">—</span>
+                  </div>
+                </header>
+
+                <p class="render-error" id="home-error" role="alert" hidden></p>
+
+                <div class="viz-scroll">
+                  <div class="viz-stage" id="home-preview">
+                    <img
+                      src="./examples/quickstart.svg"
+                      alt="Example dependency-injection diagram"
+                      width="887"
+                      height="468"
+                    />
+                  </div>
+                </div>
+
+                <footer class="panel-foot">
+                  <span id="home-status">Starting…</span>
+                  <span class="foot-right">
+                    <span><span id="home-blocks">0</span> blocks</span>
+                    <span class="foot-sep" aria-hidden="true"></span>
+                    <span><span id="home-time">—</span> render</span>
+                  </span>
+                </footer>
+              </section>
+            </div>
           </div>
 
-          <div class="workspace-status">
-            <span id="status">Starting…</span>
-            <span><span id="blocks">0</span> blocks · rendered locally</span>
+          <div class="home-facts">
+            <div>
+              <span class="fact-num">01</span>
+              <strong>Runs locally</strong>
+              <span>This tab is the renderer.</span>
+            </div>
+            <div>
+              <span class="fact-num">02</span>
+              <strong>Deterministic</strong>
+              <span>Same DSL, same SVG.</span>
+            </div>
+            <div>
+              <span class="fact-num">03</span>
+              <strong>Zero dependencies</strong>
+              <span>No DOM. No measuring.</span>
+            </div>
+          </div>
+
+          <div class="home-cli">
+            <span class="home-cli-label">CLI</span>
+            <code>node dist/cli.js examples/checkout.di -o checkout.svg</code>
+            <button class="copy-btn" type="button" data-copy>Copy</button>
+            <a href="./docs.html#cli">Reference →</a>
           </div>
         </div>
-      </section>
-
-      <section class="features shell" aria-label="How it works">
-        <article class="card">
-          <span class="card-index">01 / LAYOUT</span>
-          <h2>Ports reserve space.</h2>
-          <p>
-            Every socket reserves the wider of its own notch and its child subtree,
-            so wide services cannot cover neighbouring ports.
-          </p>
-        </article>
-        <article class="card">
-          <span class="card-index">02 / GEOMETRY</span>
-          <h2>No runtime measurement.</h2>
-          <p>
-            Character widths come from a monospace grid. The same DSL produces the
-            same SVG on every machine, without a browser engine.
-          </p>
-        </article>
-        <article class="card">
-          <span class="card-index">03 / OUTPUT</span>
-          <h2>Hardware, not boxes.</h2>
-          <p>
-            Sockets, plugs, bottom-left labels, and vertical candidate cards make
-            wiring mistakes visible before runtime.
-          </p>
-        </article>
       </section>
     </main>
 
     <footer class="site-footer">
       <div class="shell footer-grid">
         <div class="footer-brand">
-          <a class="brand" href="./">
+          <a class="brand" href="./" aria-label="divizu home">
             <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
-              <rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" stroke-width="1.8" />
-              <rect x="8" y="19" width="8" height="2.4" rx="1.2" fill="currentColor" />
+              <path
+                d="M2.5 21.5V2.5h6v6h7v-6h6v19h-5.5v-4h-8v4H2.5Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+              />
+              <rect class="mark-notch" x="10.5" y="13.4" width="3" height="2.2" />
             </svg>
-            <span>divizu</span>
+            <span class="brand-name">divizu</span>
           </a>
-          <p>A deterministic DSL for dependency-injection diagrams.</p>
+          <p>
+            A deterministic DSL for dependency-injection diagrams. Built as a
+            small, inspectable compiler.
+          </p>
         </div>
 
         <div class="footer-col">
-          <span class="label">Product</span>
-          <a href="./">Playground</a>
+          <span class="footer-label">Product</span>
+          <a href="./playground.html">Playground</a>
           <a href="./docs.html">Documentation</a>
+          <a href="./docs.html#cli">CLI &amp; API</a>
         </div>
 
         <div class="footer-col">
-          <span class="label">Source</span>
+          <span class="footer-label">Source</span>
           <a href="https://github.com/Jeysef/divizu">GitHub</a>
-          <a href="./docs.html#cli">CLI &amp; API</a>
+          <a href="./examples/checkout.di">checkout.di</a>
+          <a href="./examples/candidates.di">candidates.di</a>
+        </div>
+
+        <div class="footer-meta">
+          <span>MIT / no runtime dependencies</span>
+          <span>No trackers. No third-party requests.</span>
+          <span>Static HTML, CSS, JS</span>
         </div>
       </div>
 
       <div class="shell footer-bottom">
-        <span>divizu · DSL → SVG</span>
-        <span>MIT · no runtime dependencies</span>
+        <span>divizu / field manual / rev. 0.1</span>
+        <span>DSL → SVG / drawn bottom-up</span>
       </div>
     </footer>
 
-    <script type="module" src="./app.js"></script>
+    <script type="module" src="./home.js"></script>
+    <script src="./site.js"></script>
   </body>
 </html>

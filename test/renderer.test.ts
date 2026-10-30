@@ -211,6 +211,29 @@ test("socket-less blocks default to adapter, socket-bearing blocks to composite"
   assert.equal(blocks.get("Leaf")?.role, "adapter");
 });
 
+test("parses and renders layer and context roles", () => {
+  const dsl = `
+    Root { role: root
+      socket Cfg <- Config
+      socket Plant <- PlantLayer
+    }
+    Config "context - plain values, no methods" { role: context }
+    PlantLayer "layer - constructor recipe" {
+      role: layer
+      socket Cfg <- Config
+    }
+  `;
+  const blocks = parseDSL(dsl);
+  assert.equal(blocks.get("Config")?.role, "context");
+  assert.equal(blocks.get("PlantLayer")?.role, "layer");
+
+  const svg = render(dsl).svg;
+  assert.match(svg, /di-role-context/);
+  assert.match(svg, /di-role-layer/);
+  assert.match(svg, /stroke="#2dd4bf"/); // context stroke, dark palette
+  assert.match(svg, /stroke="#a78bfa"/); // layer stroke, dark palette
+});
+
 test("module continuations stop at the next directive", () => {
   const blocks = parseDSL(`
     A {
@@ -480,20 +503,20 @@ test("emits concrete color fallbacks for renderers without CSS variables", () =>
   // presentation attributes. The attributes must therefore be real colors.
   assert.doesNotMatch(svg, /fill="var\(/);
   assert.doesNotMatch(svg, /stroke="var\(/);
-  assert.match(svg, /fill="#18191c"/); // dark canvas fallback
-  assert.match(svg, /fill="#26272b"/); // surface
-  assert.match(svg, /stroke="#ea580c"/); // container stroke
-  assert.match(svg, /stroke="#f59e0b"/); // adapter stroke
+  assert.match(svg, /fill="#0f0f0c"/); // dark canvas fallback
+  assert.match(svg, /fill="#191914"/); // surface
+  assert.match(svg, /stroke="#f1602f"/); // container stroke
+  assert.match(svg, /stroke="#d7a24a"/); // adapter stroke
 
   const light = render(CHECKOUT, { theme: "light" }).svg;
-  assert.match(light, /fill="#f6f7fb"/);
-  assert.match(light, /fill="#ffffff"/);
+  assert.match(light, /fill="#f2ede0"/);
+  assert.match(light, /fill="#fffdf7"/);
 });
 
 test("theme, padding, and responsive options", () => {
   const light = render(CHECKOUT, { theme: "light" }).svg;
   assert.match(light, /data-theme="light"/);
-  assert.match(light, /--di-canvas-bg: #f6f7fb/);
+  assert.match(light, /--di-canvas-bg: #f2ede0/);
 
   const padded = render(CHECKOUT, { padding: 100 });
   assert.ok(padded.width > render(CHECKOUT, { padding: 10 }).width);

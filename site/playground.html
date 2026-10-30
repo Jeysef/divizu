@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Playground · divizu</title>
+    <meta
+      name="description"
+      content="Edit divizu dependency-injection DSL and render deterministic SVG locally in the browser."
+    />
+    <meta name="theme-color" content="#0c0c0a" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      href="./fonts/archivo-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="./fonts/jetbrains-mono-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <script>
+      document.documentElement.classList.add("js");
+    </script>
+  </head>
+  <body class="page-playground" data-panel="source">
+    <a class="skip-link" href="#editor">Skip to source</a>
+
+    <header class="topbar">
+      <div class="topbar-in">
+        <a class="brand" href="./" aria-label="divizu home">
+          <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M2.5 21.5V2.5h6v6h7v-6h6v19h-5.5v-4h-8v4H2.5Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            />
+            <rect class="mark-notch" x="10.5" y="13.4" width="3" height="2.2" />
+          </svg>
+          <span class="brand-copy">
+            <span class="brand-name">divizu</span>
+            <span class="brand-sub">diagram compiler</span>
+          </span>
+        </a>
+
+        <nav class="topbar-nav" aria-label="Primary">
+          <a href="./playground.html" aria-current="page"
+            ><span class="nav-num">01</span>Playground</a
+          >
+          <a href="./docs.html"><span class="nav-num">02</span>Docs</a>
+          <a class="nav-ext" href="https://github.com/Jeysef/divizu"
+            ><span class="nav-num">03</span>GitHub ↗</a
+          >
+        </nav>
+
+        <div class="topbar-end">
+          <span class="build-chip">v0.1.0</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="workbench">
+      <div class="workbench-bar">
+        <div class="bar-path" aria-label="Breadcrumb">
+          <a href="./">divizu</a>
+          <span class="path-slash">/</span>
+          <span class="path-current">playground</span>
+          <span class="path-live">local render</span>
+        </div>
+
+        <div class="bar-tools">
+          <label class="tool-label" for="example">Example</label>
+          <span class="select-wrap">
+            <select id="example" aria-label="Load an example">
+              <option value="quickstart">Quickstart</option>
+              <option value="checkout">Checkout</option>
+              <option value="candidates">Candidates</option>
+              <option value="custom">Custom</option>
+            </select>
+          </span>
+
+          <div class="seg" role="group" aria-label="Render theme">
+            <button type="button" data-theme-value="dark" aria-pressed="true">
+              Dark
+            </button>
+            <button type="button" data-theme-value="light" aria-pressed="false">
+              Light
+            </button>
+          </div>
+
+          <details class="settings" id="settings">
+            <summary>Settings</summary>
+            <div class="settings-panel">
+              <h3>Render parameters</h3>
+
+              <div class="setting">
+                <label for="corner-radius">Corner radius</label>
+                <output id="corner-radius-value" for="corner-radius">4</output>
+                <input
+                  id="corner-radius"
+                  type="range"
+                  min="0"
+                  max="20"
+                  step="1"
+                  value="4"
+                />
+              </div>
+
+              <div class="setting">
+                <label for="padding">Canvas padding</label>
+                <output id="padding-value" for="padding">40</output>
+                <input
+                  id="padding"
+                  type="range"
+                  min="16"
+                  max="96"
+                  step="4"
+                  value="40"
+                />
+              </div>
+
+              <div class="setting">
+                <label for="socket-gap">Socket gap</label>
+                <output id="socket-gap-value" for="socket-gap">28</output>
+                <input
+                  id="socket-gap"
+                  type="range"
+                  min="8"
+                  max="56"
+                  step="2"
+                  value="28"
+                />
+              </div>
+
+              <button class="settings-reset" id="settings-reset" type="button">
+                Reset defaults
+              </button>
+            </div>
+          </details>
+
+          <button class="btn btn-small" id="copy" type="button" disabled>
+            Copy link
+          </button>
+          <button
+            class="btn btn-small btn-solid"
+            id="download"
+            type="button"
+            disabled
+          >
+            Download SVG
+          </button>
+        </div>
+      </div>
+
+      <div class="mobile-switch">
+        <div class="seg" role="group" aria-label="Active panel">
+          <button type="button" data-panel-value="source" aria-pressed="true">
+            Source
+          </button>
+          <button type="button" data-panel-value="output" aria-pressed="false">
+            Output
+          </button>
+        </div>
+      </div>
+
+      <div class="split" id="split">
+        <section class="panel source-panel" aria-label="DSL source">
+          <header class="panel-head">
+            <div class="panel-title">
+              <span class="panel-index">01</span>
+              <h2>Source</h2>
+              <span class="tag" id="file-name">checkout.di</span>
+            </div>
+            <div class="panel-meta">
+              <span id="line-count">0 lines</span>
+              <span><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span>
+            </div>
+          </header>
+
+          <div class="editor">
+            <div class="gutter" id="gutter" aria-hidden="true"></div>
+            <div class="editor-stack">
+              <pre class="highlight" id="highlight" aria-hidden="true"></pre>
+              <textarea
+                class="editor-input"
+                id="editor"
+                wrap="off"
+                spellcheck="false"
+                autocapitalize="off"
+                autocomplete="off"
+                autocorrect="off"
+                aria-label="divizu DSL editor"
+              ></textarea>
+            </div>
+          </div>
+
+          <footer class="panel-foot">
+            <span class="state" id="source-state">ready</span>
+            <span>DSL / UTF-8</span>
+          </footer>
+        </section>
+
+        <div
+          class="split-handle"
+          id="split-handle"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize source and output"
+          tabindex="0"
+        >
+          <span aria-hidden="true"></span>
+        </div>
+
+        <section class="panel output-panel" aria-label="Rendered output">
+          <header class="panel-head">
+            <div class="panel-title">
+              <span class="panel-index">02</span>
+              <h2>Output</h2>
+              <span class="tag" id="view-tag">SVG</span>
+            </div>
+            <div class="panel-meta">
+              <span id="dims">—</span>
+              <div class="zoom-tools" role="group" aria-label="Output zoom">
+                <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
+                <button id="zoom-reset" type="button" aria-label="Fit diagram">Fit</button>
+                <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+              </div>
+            </div>
+          </header>
+
+          <p class="render-error" id="error" role="alert" hidden></p>
+
+          <div class="viz-scroll">
+            <div class="viz-stage" id="preview">
+              <img
+                src="./examples/quickstart.svg"
+                alt="Quickstart dependency-injection diagram"
+                width="887"
+                height="468"
+              />
+            </div>
+          </div>
+
+          <footer class="panel-foot">
+            <span id="status">Starting…</span>
+            <span class="foot-right">
+              <span><span id="blocks">0</span> blocks</span>
+              <span class="foot-sep" aria-hidden="true"></span>
+              <span><span id="render-time">—</span> render</span>
+            </span>
+          </footer>
+        </section>
+      </div>
+
+      <div class="workbench-foot">
+        <span>Rendered in your browser / nothing leaves the tab</span>
+        <span class="hide-mobile">
+          <a href="./docs.html">Docs</a> ·
+          <a href="https://github.com/Jeysef/divizu">Source</a> ·
+          <span>rev. 0.1</span>
+        </span>
+      </div>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

@@ -10,7 +10,8 @@ produces byte-identical SVG.
 
 ![Checkout DI example](examples/checkout.svg)
 
-Try the [live playground](https://jeysef.github.io/divizu/) or read the
+Try the [live sample](https://jeysef.github.io/divizu/), open the
+[full playground](https://jeysef.github.io/divizu/playground.html), or read the
 [documentation](https://jeysef.github.io/divizu/docs.html).
 
 ## Why
@@ -78,7 +79,7 @@ Grammar:
 
 ```
 BlockId ["subtitle"] {
-  role: root | composite | adapter | service | port
+  role: root | composite | adapter | service | port | layer | context
   modules: name, "name, with comma", name
   candidates: Name, Name(RequiredInterface), Name
   socket PortName
@@ -94,9 +95,12 @@ BlockId ["subtitle"] {
   rotated labels. `Name(RequiredInterface)` adds a U-shaped side notch and a
   rotated interface pill (see `examples/candidates.di`).
 - Role colors: orange = composition root, blue = service / composite container,
-  yellow = adapter, green = port. See the
+  yellow = adapter, green = port, purple = layer, teal = context. See the
   [documentation](https://jeysef.github.io/divizu/docs.html) for the visual
   legend, socket/plug semantics, and candidate cards.
+- Use `layer` for a constructor/wiring recipe (Effect-style `Layer`), and
+  `context` for plain injected values with no methods and no live
+  implementation (config, `Context.Reference`).
 - `#` and `//` comments are supported (outside quoted strings).
 - Modules may continue onto the next line when the line ends with `,`.
 - `<PortName>` / `<Provider>` angle brackets are tolerated.
@@ -182,20 +186,24 @@ palette — use `--theme light` / `theme: "light"` for a static light SVG.
 
 | Variable | Dark | Light |
 | --- | --- | --- |
-| `--di-canvas-bg` | `#18191c` | `#f6f7fb` |
-| `--di-surface` | `#26272b` | `#ffffff` |
-| `--di-stroke-container` | `#ea580c` | `#c2410c` |
-| `--di-stroke-adapter` | `#f59e0b` | `#b45309` |
-| `--di-fg` | `#f4f4f6` | `#111827` |
-| `--di-muted` | `#9ca3af` | `#6b7280` |
-| `--di-module-bg` | `#2e3036` | `#f3f4f6` |
-| `--di-module-border` | `#4b5563` | `#d1d5db` |
-| `--di-module-fg` | `#d1d5db` | `#374151` |
-| `--di-pill-bg` | `#6d5dfc` | `#5b4bdb` |
-| `--di-pill-text` | `#f4f4f6` | `#ffffff` |
-| `--di-pill-unbound` | `#7c6df2` | `#6d5df2` |
-| `--di-pill-unbound-bg` | `#241f3d` | `#f0edff` |
-| `--di-pill-unbound-text` | `#d6ccff` | `#4338ca` |
+| `--di-canvas-bg` | `#0f0f0c` | `#f2ede0` |
+| `--di-surface` | `#191914` | `#fffdf7` |
+| `--di-stroke-container` | `#f1602f` | `#c2410c` |
+| `--di-stroke-adapter` | `#d7a24a` | `#9a6b12` |
+| `--di-stroke-service` | `#6f9fce` | `#2b5e98` |
+| `--di-stroke-port` | `#a9c46a` | `#4f6f13` |
+| `--di-stroke-layer` | `#a78bfa` | `#7c3aed` |
+| `--di-stroke-context` | `#2dd4bf` | `#0f766e` |
+| `--di-fg` | `#ece7da` | `#17150f` |
+| `--di-muted` | `#918b7d` | `#6f6a5d` |
+| `--di-module-bg` | `#22221c` | `#f1ede1` |
+| `--di-module-border` | `#454338` | `#c9c3b2` |
+| `--di-module-fg` | `#d2ccbe` | `#343128` |
+| `--di-pill-bg` | `#345b78` | `#285c7a` |
+| `--di-pill-text` | `#edf2f0` | `#f7fbfc` |
+| `--di-pill-unbound` | `#b28a42` | `#8a6a1f` |
+| `--di-pill-unbound-bg` | `#211d13` | `#f6efd9` |
+| `--di-pill-unbound-text` | `#e6c88e` | `#6d520f` |
 | `--di-font` | monospace stack | monospace stack |
 
 ```css
@@ -318,7 +326,7 @@ src/index.ts      public exports
 src/cli.ts        CLI (render, stdin, watch)
 test/             parser, layout invariants, SVG, options
 examples/         canonical diagram + generated SVG
-site/             static playground + documentation (GitHub Pages)
+site/             static sample, playground and documentation (GitHub Pages)
 scripts/          build-time CSS generation
 ```
 
