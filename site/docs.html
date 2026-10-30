@@ -8,7 +8,7 @@
       name="description"
       content="The divizu legend and DSL reference: roles and colors, sockets vs plugs, unbound ports, module cards, candidates, CLI, and API."
     />
-    <meta name="theme-color" content="#0b0c0f" />
+    <meta name="theme-color" content="#ffffff" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
@@ -18,16 +18,9 @@
     <header class="site-header">
       <div class="shell header-inner">
         <a class="brand" href="./" aria-label="divizu home">
-          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-            <defs>
-              <linearGradient id="brand-gradient" x1="4" y1="0" x2="28" y2="32">
-                <stop offset="0" stop-color="#ff9a5c" />
-                <stop offset="1" stop-color="#f2591f" />
-              </linearGradient>
-            </defs>
-            <rect x="2" y="2" width="28" height="28" rx="8" fill="url(#brand-gradient)" />
-            <rect x="10" y="1" width="12" height="7" rx="2" fill="#0b0c0f" />
-            <rect x="12" y="26" width="8" height="4" rx="1.5" fill="#0b0c0f" opacity=".35" />
+          <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="1" y="1" width="22" height="22" rx="5" fill="currentColor" />
+            <rect x="7" y="15" width="10" height="2.5" rx="1.25" fill="#ffffff" />
           </svg>
           <span>divizu</span>
           <span class="version">v0.1</span>
@@ -65,7 +58,7 @@
             <li><a href="#roles">Roles &amp; colors</a></li>
             <li><a href="#sockets">Sockets &amp; plugs</a></li>
             <li><a href="#unbound">Unbound sockets</a></li>
-            <li><a href="#modules">Module cards</a></li>
+            <li><a href="#modules">Internal modules</a></li>
             <li><a href="#candidates">Candidates</a></li>
             <li><a href="#dsl">DSL reference</a></li>
             <li><a href="#examples">Examples</a></li>
@@ -102,7 +95,7 @@
             <h2>Roles &amp; colors</h2>
             <p>
               Role colors are applied to the block outline. The palette adapts to
-              light and dark themes; the swatches below show the dark defaults.
+              light and dark themes; the swatches below show the light defaults.
             </p>
 
             <div class="role-grid">
@@ -217,11 +210,12 @@
           </section>
 
           <section id="modules">
-            <h2>Internal module cards</h2>
+            <h2>Internal modules</h2>
             <p>
               <code>modules:</code> lists collaborators that are internal to a block,
-              not separately plugged dependencies. They render as tall vertical cards
-              inside the block body, with labels rotated 90°.
+              not separately plugged dependencies. They render as compact horizontal
+              rows inside the block body, below the sockets. Extended names are fine;
+              quote a name if it contains a comma.
             </p>
             <pre><code>OrderService "composite" {
   role: composite
@@ -299,7 +293,7 @@
                   </tr>
                   <tr>
                     <td><code>modules: a, b</code></td>
-                    <td>Internal collaborators rendered as vertical cards.</td>
+                    <td>Internal collaborators rendered as compact horizontal rows.</td>
                   </tr>
                   <tr>
                     <td><code>candidates: A, B(IFace)</code></td>

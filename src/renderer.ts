@@ -665,15 +665,23 @@ function computeLayout(
       computedSockets.length === 0 &&
       !hasCandidates &&
       (def.role === "adapter" || def.modules.length === 0);
-    const cardCount =
-      def.role === "root" ? 0 : def.modules.length + def.candidates.length;
-    const cardsRowW =
-      cardCount > 0
-        ? cardCount * CANDIDATE_W +
-          (cardCount - 1) * CANDIDATE_GAP +
-          CANDIDATE_PAD * 2
-        : 0;
-    const contentW = Math.max(136, titleW, subtitleW, cardsRowW);
+    const maxModuleW = def.modules.reduce(
+      (max, module) => Math.max(max, module.length * CHAR_W_SMALL + 48),
+      0,
+    );
+    const moduleRowW = def.modules.length > 0 ? maxModuleW + 44 : 0;
+    const candidateRowW = hasCandidates
+      ? def.candidates.length * CANDIDATE_W +
+        (def.candidates.length - 1) * CANDIDATE_GAP +
+        CANDIDATE_PAD * 2
+      : 0;
+    const contentW = Math.max(
+      136,
+      titleW,
+      subtitleW,
+      moduleRowW,
+      candidateRowW,
+    );
 
     let width: number;
     if (isLeaf) {
@@ -693,10 +701,19 @@ function computeLayout(
     const topSocketZone =
       computedSockets.length > 0 ? SOCKET_DEPTH + 14 : 18;
     const headerZone = isLeaf ? 0 : (def.subtitle ? 44 : 28);
-    const cardsZone = isLeaf || cardCount === 0 ? 0 : CANDIDATE_H + CANDIDATE_PAD * 2;
+    const modulesZone =
+      isLeaf || def.role === "root" || def.modules.length === 0
+        ? 0
+        : def.modules.length * MODULE_HEIGHT +
+          (def.modules.length - 1) * MODULE_GAP +
+          16;
+    const candidateZone =
+      isLeaf || def.role === "root" || !hasCandidates
+        ? 0
+        : CANDIDATE_H + CANDIDATE_PAD * 2;
     let height = isLeaf
       ? LEAF_HEIGHT
-      : topSocketZone + headerZone + cardsZone + 14;
+      : topSocketZone + headerZone + modulesZone + candidateZone + 14;
     if (def.role === "root") {
       // The root is a clean baseplate: sockets on top, title bottom-left.
       height = Math.max(topSocketZone + 18, 120);
@@ -1037,22 +1054,34 @@ function renderBlock(
 
   const bodyTop = top + (node.sockets.length > 0 ? SOCKET_DEPTH + 18 : 18);
 
-  // Internal modules and candidate implementations are the same hardware:
-  // tall vertical cards in a row, with rotated labels and optional side pills.
-  const cards: CandidateDef[] =
-    node.def.role === "root"
-      ? []
-      : [
-          ...node.def.modules.map((name) => ({ name })),
-          ...node.def.candidates,
-        ];
-  if (cards.length > 0) {
-    const n = cards.length;
+  const modules = node.def.role === "root" ? [] : node.def.modules;
+  const candidates = node.def.role === "root" ? [] : node.def.candidates;
+
+  // Internal modules are compact horizontal rows inside the service body.
+  if (modules.length > 0) {
+    const moduleW = Math.min(node.width - 36, 420);
+    const moduleX = left + (node.width - moduleW) / 2;
+    modules.forEach((moduleName, index) => {
+      const moduleY = bodyTop + index * (MODULE_HEIGHT + MODULE_GAP);
+      parts.push(
+        `<g class="di-module">`,
+        `<rect x="${fmt(moduleX)}" y="${fmt(moduleY)}" width="${fmt(moduleW)}" height="${MODULE_HEIGHT}" rx="5" fill="${palette.moduleBg}" stroke="${palette.moduleBorder}" stroke-width="1" />`,
+        `<text x="${fmt(moduleX + 12)}" y="${fmt(moduleY + 18.5)}" text-anchor="start" fill="${palette.moduleFg}" font-size="12">${escapeXml(moduleName)}</text>`,
+        `</g>`,
+      );
+    });
+  }
+
+  // Candidate implementations are tall vertical cards with optional side pills.
+  if (candidates.length > 0) {
+    const modulesH =
+      modules.length * MODULE_HEIGHT + Math.max(0, modules.length - 1) * MODULE_GAP;
+    const n = candidates.length;
     const rowW = n * CANDIDATE_W + (n - 1) * CANDIDATE_GAP;
     const startX = left + (node.width - rowW) / 2;
-    const startY = bodyTop;
+    const startY = bodyTop + (modules.length > 0 ? modulesH + 16 : 0);
 
-    cards.forEach((candidate, index) => {
+    candidates.forEach((candidate, index) => {
       const x = startX + index * (CANDIDATE_W + CANDIDATE_GAP);
       const y = startY;
       const w = CANDIDATE_W;
