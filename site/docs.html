@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>divizu documentation — roles, sockets, candidates, DSL</title>
+    <meta
+      name="description"
+      content="The divizu legend and DSL reference: roles and colors, sockets vs plugs, unbound ports, module cards, candidates, CLI, and API."
+    />
+    <meta name="theme-color" content="#0b0c0f" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Skip to documentation</a>
+
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="./" aria-label="divizu home">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+            <defs>
+              <linearGradient id="brand-gradient" x1="4" y1="0" x2="28" y2="32">
+                <stop offset="0" stop-color="#ff9a5c" />
+                <stop offset="1" stop-color="#f2591f" />
+              </linearGradient>
+            </defs>
+            <rect x="2" y="2" width="28" height="28" rx="8" fill="url(#brand-gradient)" />
+            <rect x="10" y="1" width="12" height="7" rx="2" fill="#0b0c0f" />
+            <rect x="12" y="26" width="8" height="4" rx="1.5" fill="#0b0c0f" opacity=".35" />
+          </svg>
+          <span>divizu</span>
+          <span class="version">v0.1</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Primary">
+          <a href="./">Playground</a>
+          <a href="./docs.html" aria-current="page">Docs</a>
+          <a class="external" href="https://github.com/Jeysef/divizu">
+            GitHub
+            <svg viewBox="0 0 12 12" aria-hidden="true">
+              <path d="M3.5 2h6.5v6.5M10 2 2 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="content">
+      <section class="docs-hero shell">
+        <p class="eyebrow">Documentation</p>
+        <h1>The legend, the grammar,<br /><span class="accent">the whole contract.</span></h1>
+        <p class="lede">
+          divizu renders dependency-injection wiring as hardware: boards, drilled
+          sockets, and modules with plugs. The renderer deliberately draws no
+          explanatory text inside the SVG — this page is the legend.
+        </p>
+      </section>
+
+      <div class="shell doc-layout">
+        <aside class="toc" aria-label="On this page">
+          <strong>On this page</strong>
+          <ol>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#roles">Roles &amp; colors</a></li>
+            <li><a href="#sockets">Sockets &amp; plugs</a></li>
+            <li><a href="#unbound">Unbound sockets</a></li>
+            <li><a href="#modules">Module cards</a></li>
+            <li><a href="#candidates">Candidates</a></li>
+            <li><a href="#dsl">DSL reference</a></li>
+            <li><a href="#examples">Examples</a></li>
+            <li><a href="#cli">CLI &amp; API</a></li>
+            <li><a href="#theming">Theming</a></li>
+            <li><a href="#limits">Limits</a></li>
+          </ol>
+        </aside>
+
+        <article class="prose">
+          <section id="overview">
+            <h2>Overview</h2>
+            <p>
+              A divizu document is a list of <strong>blocks</strong>. A block is a
+              container, service, adapter, or port. Blocks declare
+              <strong>sockets</strong> for the interfaces they need, and a socket may
+              name the block that provides that interface. The provider plugs into the
+              socket.
+            </p>
+            <p>
+              The layout reads bottom-up: the composition root sits at the bottom,
+              its sockets open upward, and implementations sit above it. Multiple
+              unplugged roots are laid out side by side as a forest.
+            </p>
+            <div class="note info">
+              Nothing is measured at runtime. Character widths are estimated from a
+              monospace grid, so the same DSL produces byte-identical SVG on every
+              machine.
+            </div>
+            <a class="doc-cta" href="./">Open the playground →</a>
+          </section>
+
+          <section id="roles">
+            <h2>Roles &amp; colors</h2>
+            <p>
+              Role colors are applied to the block outline. The palette adapts to
+              light and dark themes; the swatches below show the dark defaults.
+            </p>
+
+            <div class="role-grid">
+              <div class="role-card">
+                <div class="swatch swatch-root"></div>
+                <strong>root</strong>
+                <span>The composition root / baseplate. Sits at the bottom with a bottom-left title.</span>
+              </div>
+              <div class="role-card">
+                <div class="swatch swatch-service"></div>
+                <strong>composite</strong>
+                <span>A container that hosts sockets and modules. Inferred for socket-bearing blocks.</span>
+              </div>
+              <div class="role-card">
+                <div class="swatch swatch-service"></div>
+                <strong>service</strong>
+                <span>A provided service or factory. Same blue as composite, different intent.</span>
+              </div>
+              <div class="role-card">
+                <div class="swatch swatch-adapter"></div>
+                <strong>adapter</strong>
+                <span>A leaf implementation. Inferred for blocks with no sockets or candidates.</span>
+              </div>
+              <div class="role-card">
+                <div class="swatch swatch-port"></div>
+                <strong>port</strong>
+                <span>An interface boundary / port marker when the distinction matters.</span>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Role</th><th>Dark stroke</th><th>Light stroke</th><th>Typical use</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>root</code></td><td>#ea580c</td><td>#c2410c</td><td>Application / container entry point</td></tr>
+                  <tr><td><code>composite</code></td><td>#3b82f6</td><td>#2563eb</td><td>Service that owns dependencies</td></tr>
+                  <tr><td><code>service</code></td><td>#3b82f6</td><td>#2563eb</td><td>Factory or provider with candidates</td></tr>
+                  <tr><td><code>adapter</code></td><td>#f59e0b</td><td>#b45309</td><td>Concrete leaf implementation</td></tr>
+                  <tr><td><code>port</code></td><td>#10b981</td><td>#047857</td><td>Interface boundary marker</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>
+              Roles are optional. A socket-less block with no candidates defaults to
+              <code>adapter</code>; a socket-bearing block defaults to
+              <code>composite</code>.
+            </p>
+          </section>
+
+          <section id="sockets">
+            <h2>Sockets &amp; plugs</h2>
+            <p>
+              A <strong>socket</strong> is a U-shaped notch cut into the top edge of a
+              block. Its width comes from the port name. An interface pill sits on the
+              floor of the notch.
+            </p>
+            <ul>
+              <li>
+                <code>socket PaymentPort &lt;- StripePayment</code> is a
+                <strong>bound socket</strong>: a solid purple pill names the interface,
+                and <code>StripePayment</code> is drawn above the socket.
+              </li>
+              <li>
+                The provider's bottom edge grows a <strong>tab</strong> (the plug). The
+                tab descends into the notch and stops just above the interface pill.
+              </li>
+              <li>
+                The child body is centred on the socket and sits a small
+                <code>fitGap</code> above the parent's top edge (default 10px), which
+                keeps the strokes visually clear.
+              </li>
+              <li>
+                Every block perimeter — top notches, body, bottom tab — is one
+                clockwise polygon rounded with a single quadratic-curve pass.
+              </li>
+            </ul>
+            <p>
+              A block may have several sockets. They are ordered left-to-right, and
+              each socket reserves an envelope as wide as the wider of its own notch
+              and the provider's whole subtree. Wide subtrees therefore push their
+              neighbouring sockets outward instead of covering them.
+            </p>
+            <div class="note">
+              The anti-shadowing rule is the reason a wide child never hides a sibling
+              port. Left and right extents are reserved independently, so asymmetric
+              subtrees stay honest too.
+            </div>
+          </section>
+
+          <section id="unbound">
+            <h2>Unbound sockets</h2>
+            <p>
+              Write a socket without a provider to leave it unbound:
+            </p>
+            <pre><code>CheckoutApi {
+  socket ShippingPort
+  socket OrderUseCase &lt;- OrderService
+}</code></pre>
+            <p>
+              An unbound socket has no child block. Its interface pill is drawn with a
+              dashed outline and muted purple fill. It still carves a real notch, so it
+              participates in layout exactly like a bound socket.
+            </p>
+            <p>
+              Use unbound sockets for dependencies that live outside the diagram, for
+              ports that cross a bounded context, or to deliberately stop a graph at an
+              interface boundary.
+            </p>
+          </section>
+
+          <section id="modules">
+            <h2>Internal module cards</h2>
+            <p>
+              <code>modules:</code> lists collaborators that are internal to a block,
+              not separately plugged dependencies. They render as tall vertical cards
+              inside the block body, with labels rotated 90°.
+            </p>
+            <pre><code>CheckoutApi "DI container (root)" {
+  role: root
+  modules: ServiceRegistry, ConfigLoader, LifecycleHooks
+}</code></pre>
+            <ul>
+              <li>Modules do not create nodes, sockets, or layout edges.</li>
+              <li>Quote a name to include a comma: <code>"conn pool, primary"</code>.</li>
+              <li>
+                A module list may continue on the next line when the line ends with a
+                comma.
+              </li>
+            </ul>
+          </section>
+
+          <section id="candidates">
+            <h2>Candidates with side notches</h2>
+            <p>
+              <code>candidates:</code> lists alternative implementations that a
+              factory or service can produce. Candidates share the same vertical card
+              rendering as modules, but they mean “one of these”, not “all of these”.
+            </p>
+            <pre><code>PreviewGeneratorFactory "factory" {
+  role: service
+  socket ImageScaler &lt;- SharpImageScaler
+  candidates: DocumentPreview, ImagePreview(ImageScaler), VideoPreview
+}</code></pre>
+            <ul>
+              <li>
+                <code>Name</code> renders a plain rounded card.
+              </li>
+              <li>
+                <code>Name(RequiredInterface)</code> cuts a U-shaped notch into the
+                card's right side and places a rotated interface pill inside it. It
+                means that candidate itself requires <code>RequiredInterface</code>.
+              </li>
+              <li>
+                A candidate side notch is <strong>not</strong> a top-edge socket. It
+                does not bind a provider, create a child node, or add a layout edge.
+              </li>
+            </ul>
+            <p>
+              The full working example is
+              <a href="./examples/candidates.di">examples/candidates.di</a>. It shows
+              two factories, <code>ImagePreview(ImageScaler)</code> and
+              <code>AwsStorage(Encryption)</code>, with side notches.
+            </p>
+          </section>
+
+          <section id="dsl">
+            <h2>DSL reference</h2>
+            <p>The complete grammar:</p>
+            <pre><code>BlockId ["subtitle"] {
+  role: root | composite | service | adapter | port
+  modules: name, "name, with comma", name
+  candidates: Name, Name(RequiredInterface), Name
+  socket PortName
+  socket PortName &lt;- ProviderBlockId
+}</code></pre>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Syntax</th><th>Meaning</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>BlockId "subtitle" { ... }</code></td>
+                    <td>Declares a block. Ids may contain letters, digits, <code>_</code>, <code>.</code>, and <code>-</code>. Subtitles are optional.</td>
+                  </tr>
+                  <tr>
+                    <td><code>role: ...</code></td>
+                    <td>One of <code>root</code>, <code>composite</code>, <code>service</code>, <code>adapter</code>, <code>port</code>.</td>
+                  </tr>
+                  <tr>
+                    <td><code>modules: a, b</code></td>
+                    <td>Internal collaborators rendered as vertical cards.</td>
+                  </tr>
+                  <tr>
+                    <td><code>candidates: A, B(IFace)</code></td>
+                    <td>Alternative implementations; the optional argument adds a side notch and rotated pill.</td>
+                  </tr>
+                  <tr>
+                    <td><code>socket Port</code></td>
+                    <td>Unbound dependency: dashed pill, no provider.</td>
+                  </tr>
+                  <tr>
+                    <td><code>socket Port &lt;- Provider</code></td>
+                    <td>Bound dependency: solid pill plus a provider plug.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>Details</h3>
+            <ul>
+              <li><code>#</code> and <code>//</code> start a comment outside quoted strings.</li>
+              <li>Angle brackets are tolerated: <code>socket &lt;Port&gt; &lt;- &lt;Provider&gt;</code>.</li>
+              <li>Blank bodies are valid: <code>Leaf {}</code>.</li>
+              <li>Modules continue across lines when the line ends with a comma.</li>
+              <li>Block ids must be unique; socket references must resolve.</li>
+              <li>The graph must be acyclic and every block must be reachable from a root.</li>
+            </ul>
+
+            <p>
+              Validation is intentionally strict. Duplicate ids, unknown roles,
+              unknown providers, unreachable blocks, and cycles fail with a readable
+              error instead of producing a misleading diagram.
+            </p>
+          </section>
+
+          <section id="examples">
+            <h2>Examples</h2>
+            <h3>Checkout — root, composite, adapters</h3>
+            <pre><code>CheckoutApi "DI container (root)" {
+  role: root
+  modules: ServiceRegistry, ConfigLoader, LifecycleHooks
+  socket ShippingPort
+  socket OrderUseCase &lt;- OrderService
+  socket ReportPort
+}
+
+OrderService "composite" {
+  role: composite
+  modules: OrderValidator, PricingEngine, OrderMapper
+  socket PaymentPort &lt;- StripePayment
+  socket StockPort &lt;- PostgresStock
+  socket NotifyPort &lt;- EmailNotifier
+}
+
+StripePayment "adapter" {
+  role: adapter
+}
+
+PostgresStock "adapter" {
+  role: adapter
+  modules: "conn pool", migrations
+}
+
+EmailNotifier "adapter" {
+  role: adapter
+}</code></pre>
+
+            <figure class="doc-figure">
+              <img src="./examples/checkout.svg" alt="Rendered checkout dependency-injection diagram" />
+              <figcaption>
+                The canonical checkout example. Note the two dashed unbound sockets
+                (<code>ShippingPort</code>, <code>ReportPort</code>) flanking the
+                bound <code>OrderUseCase</code>.
+              </figcaption>
+            </figure>
+
+            <h3>Candidates — factories with side notches</h3>
+            <pre><code>UploadRequest "root" {
+  role: root
+  socket Scanner &lt;- ThreatProtectScanner
+  socket ImageScaler &lt;- SharpImageScaler
+  socket PreviewGenerator &lt;- PreviewGeneratorFactory
+  socket Storage &lt;- StorageFactory
+}
+
+PreviewGeneratorFactory "factory" {
+  role: service
+  socket ImageScaler &lt;- SharpImageScaler
+  candidates: DocumentPreview, ImagePreview(ImageScaler), VideoPreview
+}
+
+StorageFactory "factory" {
+  role: service
+  socket Encryption &lt;- AESEncryption
+  candidates: S3Storage, AwsStorage(Encryption), WebDavStorage
+}</code></pre>
+
+            <figure class="doc-figure">
+              <img src="./examples/candidates.svg" alt="Rendered candidates example with side notches" />
+              <figcaption>
+                <code>ImagePreview(ImageScaler)</code> and
+                <code>AwsStorage(Encryption)</code> grow U-shaped side notches with
+                rotated interface pills.
+              </figcaption>
+            </figure>
+
+            <p>
+              Source files: <a href="./examples/checkout.di">checkout.di</a>,
+              <a href="./examples/candidates.di">candidates.di</a>. Open either one in
+              the <a href="./">playground</a> to edit it live.
+            </p>
+          </section>
+
+          <section id="cli">
+            <h2>CLI &amp; API</h2>
+            <p>Render a file to SVG, or read the DSL from stdin:</p>
+            <pre><code>diviz &lt;input.di&gt; [options]
+cat graph.di | diviz [options]</code></pre>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Option</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>-o, --out &lt;file&gt;</code></td><td>Write SVG to a file (default: stdout)</td></tr>
+                  <tr><td><code>-t, --theme &lt;mode&gt;</code></td><td><code>auto</code>, <code>dark</code>, or <code>light</code> (default <code>auto</code>)</td></tr>
+                  <tr><td><code>-p, --padding &lt;px&gt;</code></td><td>Canvas padding (default 56)</td></tr>
+                  <tr><td><code>--radius &lt;px&gt;</code></td><td>Corner radius (default 10)</td></tr>
+                  <tr><td><code>--fit-gap &lt;px&gt;</code></td><td>Edge-to-edge plug gap, 4–20 (default 10)</td></tr>
+                  <tr><td><code>--socket-gap &lt;px&gt;</code></td><td>Space between socket envelopes (default 28)</td></tr>
+                  <tr><td><code>--responsive</code></td><td>Emit <code>width="100%" height="100%"</code></td></tr>
+                  <tr><td><code>--title &lt;text&gt;</code></td><td>Accessible SVG title</td></tr>
+                  <tr><td><code>--json</code></td><td>Print computed layout geometry instead of SVG</td></tr>
+                  <tr><td><code>-w, --watch</code></td><td>Re-render when the input file changes</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>Use it as a library:</p>
+            <pre><code>import { render, mount, layout, parseDSL } from "diviz";
+
+const { svg, width, height } = render(dsl, {
+  theme: "dark",
+  padding: 48,
+});
+
+mount(document.querySelector("#di"), dsl, { theme: "light" });
+
+// Geometry for tests or hit testing:
+const geometry = layout(dsl);
+for (const node of geometry.nodes) {
+  console.log(node.id, node.x, node.y, node.width, node.height);
+}</code></pre>
+            <p>
+              Exports: <code>render</code>, <code>mount</code>, <code>layout</code>,
+              <code>parseDSL</code>, <code>themeCss</code>, and the
+              <code>THEME_CSS</code> constant.
+            </p>
+          </section>
+
+          <section id="theming">
+            <h2>Theming</h2>
+            <p>
+              The SVG embeds a self-contained stylesheet and uses low-specificity
+              <code>:where()</code> selectors, so host CSS can override any
+              <code>--di-*</code> variable without <code>!important</code>.
+            </p>
+            <pre><code>.my-diagram .di-viz {
+  --di-canvas-bg: #0b1020;
+  --di-stroke-container: #22d3ee;
+}</code></pre>
+            <p>
+              Colors are also emitted as concrete presentation attributes. That keeps
+              rasterizers without CSS-variable support (librsvg, ImageMagick, some
+              SVG-to-PNG pipelines) fully colored. In a non-CSS renderer,
+              <code>theme: "auto"</code> bakes the dark palette; use
+              <code>--theme light</code> for a static light SVG.
+            </p>
+            <p>
+              <code>diviz/theme.css</code> is generated at build time if you prefer an
+              external stylesheet.
+            </p>
+          </section>
+
+          <section id="limits">
+            <h2>Deliberate limits</h2>
+            <ul>
+              <li>
+                <strong>Shared providers are duplicated per socket.</strong> A provider
+                referenced twice is drawn twice with unique instance keys. A true
+                shared-singleton edge notation is not implemented yet.
+              </li>
+              <li>
+                <strong>Graphs must be acyclic.</strong> Cycles and unreachable blocks
+                are rejected with a descriptive error.
+              </li>
+              <li>
+                <strong>One parent per block.</strong> A block is either a root or
+                plugged into exactly one socket.
+              </li>
+              <li>
+                <strong>Text width is heuristic.</strong> Monospace character-width
+                estimates are used instead of DOM measurement. CJK or emoji-heavy
+                labels can overflow.
+              </li>
+              <li>
+                <strong>All sockets are on the top edge.</strong> Candidate side
+                notches exist, but dependency sockets do not rotate to the sides yet.
+              </li>
+              <li>
+                <strong>5,000-instance safety limit.</strong> Guards against
+                exponential growth when shared subtrees are duplicated heavily.
+              </li>
+            </ul>
+          </section>
+        </article>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell footer-inner">
+        <span>divizu — a small renderer for big dependency graphs.</span>
+        <nav aria-label="Footer">
+          <a href="./">Playground</a>
+          <a href="./examples/checkout.di">checkout.di</a>
+          <a href="https://github.com/Jeysef/divizu">Source</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

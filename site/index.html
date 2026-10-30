@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>divizu — dependency-injection diagrams in your browser</title>
+    <meta
+      name="description"
+      content="divizu is a zero-dependency DSL-to-SVG playground for hardware-slot dependency-injection diagrams."
+    />
+    <meta name="theme-color" content="#0b0c0f" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#playground">Skip to playground</a>
+
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="./" aria-label="divizu home">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+            <defs>
+              <linearGradient id="brand-gradient" x1="4" y1="0" x2="28" y2="32">
+                <stop offset="0" stop-color="#ff9a5c" />
+                <stop offset="1" stop-color="#f2591f" />
+              </linearGradient>
+            </defs>
+            <rect x="2" y="2" width="28" height="28" rx="8" fill="url(#brand-gradient)" />
+            <rect x="10" y="1" width="12" height="7" rx="2" fill="#0b0c0f" />
+            <rect x="12" y="26" width="8" height="4" rx="1.5" fill="#0b0c0f" opacity=".35" />
+          </svg>
+          <span>divizu</span>
+          <span class="version">v0.1</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Primary">
+          <a href="./" aria-current="page">Playground</a>
+          <a href="./docs.html">Docs</a>
+          <a class="external" href="https://github.com/Jeysef/divizu">
+            GitHub
+            <svg viewBox="0 0 12 12" aria-hidden="true">
+              <path d="M3.5 2h6.5v6.5M10 2 2 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero shell">
+        <p class="eyebrow">DSL → SVG · zero runtime dependencies</p>
+        <h1>Dependency injection,<br /><span class="accent">drawn like hardware.</span></h1>
+        <p class="lede">
+          Write a tiny declarative DSL and get a deterministic, byte-identical SVG.
+          No DOM, no headless browser, no layout roulette. Edit on the left — the
+          diagram on the right updates as you type.
+        </p>
+      </section>
+
+      <section class="shell" id="playground" aria-label="divizu playground">
+        <div class="workspace">
+          <section class="panel editor-panel" aria-label="DSL source">
+            <div class="pane-head">
+              <div class="pane-title">
+                <span class="dot dot-orange" aria-hidden="true"></span>
+                Source
+              </div>
+              <label class="select-label">
+                <span class="sr-only">Example</span>
+                <select id="example" aria-label="Load an example">
+                  <option value="custom">Custom DSL</option>
+                  <option value="checkout">Checkout</option>
+                  <option value="candidates">Candidates</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="editor-body">
+              <textarea
+                id="editor"
+                class="editor"
+                spellcheck="false"
+                autocapitalize="off"
+                autocomplete="off"
+                autocorrect="off"
+                aria-label="divizu DSL editor"
+              ></textarea>
+            </div>
+
+            <div class="pane-foot">
+              <span class="hint"><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> to render</span>
+              <div class="actions">
+                <button class="btn" id="copy" type="button">Copy share link</button>
+                <button class="btn btn-primary" id="download" type="button" disabled>
+                  Download SVG
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel preview-panel" aria-label="Rendered preview">
+            <div class="pane-head">
+              <div class="pane-title">
+                <span class="dot dot-blue" aria-hidden="true"></span>
+                Preview
+                <span class="chip" id="dims" aria-live="polite">—</span>
+              </div>
+              <label class="select-label">
+                <span class="sr-only">Theme</span>
+                <select id="theme" aria-label="Render theme">
+                  <option value="dark" selected>Dark</option>
+                  <option value="light">Light</option>
+                  <option value="auto">Auto</option>
+                </select>
+              </label>
+            </div>
+
+            <p class="error" id="error" role="alert" hidden></p>
+            <div class="preview" id="preview">
+              <div class="preview-empty">Loading renderer…</div>
+            </div>
+            <div class="statusbar">
+              <span id="status">Starting…</span>
+              <span class="statusbar-note">rendered locally · <span id="blocks">0</span> blocks</span>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="features shell" aria-label="Why divizu">
+        <article>
+          <h2>Anti-shadowing layout</h2>
+          <p>
+            Every socket reserves the wider of its own notch and its child subtree on
+            each side, so wide composites push neighbouring ports outward instead of
+            covering them.
+          </p>
+        </article>
+        <article>
+          <h2>Physical metaphor</h2>
+          <p>
+            Drilled sockets are dependencies; bottom tabs are the implementations that
+            plug into them. The drawing makes wiring mistakes obvious before runtime.
+          </p>
+        </article>
+        <article>
+          <h2>Deterministic output</h2>
+          <p>
+            Pure geometry and monospace width estimates produce the same SVG on every
+            machine. No fonts to load, no browser engine, no random identifiers.
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell footer-inner">
+        <span>divizu — a small renderer for big dependency graphs.</span>
+        <nav aria-label="Footer">
+          <a href="./docs.html">Documentation</a>
+          <a href="./examples/checkout.di">checkout.di</a>
+          <a href="https://github.com/Jeysef/divizu">Source</a>
+        </nav>
+      </div>
+    </footer>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
