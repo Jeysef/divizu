@@ -14,16 +14,17 @@ function span(className, value) {
   return `<span class="${className}">${escapeHtml(value)}</span>`;
 }
 
-/* Small, dependency-free highlighter for the divizu DSL. It keeps comments,
-   quoted subtitles, block names, directives and the plug arrow distinct. */
+/* Small, dependency-free highlighter for the divizu DSL. */
 export function highlightDsl(source) {
-  const keywords = /^(socket|role|modules|candidates)\b/;
-  const roles = new Set(["root", "composite", "service", "adapter", "port"]);
+  const keywords =
+    /^(root|component|boundary|value|needs|provides|modules|candidates|tag|src|label|fresh)\b/;
+  const roleKeywords = new Set(["root", "component", "boundary", "value"]);
 
   const lines = source.split("\n").map((line) => {
     let out = "";
     let i = 0;
     let firstToken = true;
+    let afterRole = false;
 
     while (i < line.length) {
       const rest = line.slice(i);
@@ -49,12 +50,14 @@ export function highlightDsl(source) {
         out += span("tk-str", line.slice(i, end));
         i = end;
         firstToken = false;
+        afterRole = false;
         continue;
       }
 
       const keyword = keywords.exec(rest);
       if (keyword) {
         out += span("tk-key", keyword[0]);
+        afterRole = roleKeywords.has(keyword[0]);
         i += keyword[0].length;
         firstToken = false;
         continue;
@@ -67,12 +70,12 @@ export function highlightDsl(source) {
         continue;
       }
 
-      const word = /^[A-Za-z0-9_.-]+/.exec(rest);
+      const word = /^[A-Za-z0-9_.\-/@#$+~]+/.exec(rest);
       if (word) {
         const value = word[0];
-        if (firstToken) out += span("tk-block", value);
-        else if (roles.has(value)) out += span("tk-const", value);
+        if (firstToken || afterRole) out += span("tk-block", value);
         else out += escapeHtml(value);
+        afterRole = false;
         i += value.length;
         firstToken = false;
         continue;

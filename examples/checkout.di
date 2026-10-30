@@ -1,30 +1,32 @@
-// The canonical example from the renderer spec.
-// Blocks read bottom-up: root container at the bottom, implementations above.
+// Checkout — root, component, boundaries and an unbound port.
+// The root sits at the bottom; dependencies are wired above it.
 
-CheckoutApi "DI container (root)" {
-  role: root
-  socket ShippingPort
-  socket OrderUseCase <- OrderService
-  socket ReportPort
+root CheckoutApi "DI container" {
+  needs ShippingPort
+  needs OrderUseCase <- OrderService
+  needs ReportPort
 }
 
-OrderService "composite" {
-  role: composite
+component OrderService "application service" {
+  provides: OrderUseCase
   modules: OrderValidator, PricingEngine, OrderMapper
-  socket PaymentPort <- StripePayment
-  socket StockPort <- PostgresStock
-  socket NotifyPort <- EmailNotifier
+  needs PaymentPort <- StripePayment
+  needs StockPort <- PostgresStock
+  needs NotifyPort <- EmailNotifier
 }
 
-StripePayment "adapter" {
-  role: adapter
+boundary StripePayment "payments" {
+  provides: PaymentPort
+  tag: adapter
 }
 
-PostgresStock "adapter" {
-  role: adapter
+boundary PostgresStock "stock database" {
+  provides: StockPort
   modules: "conn pool", migrations
+  tag: adapter
 }
 
-EmailNotifier "adapter" {
-  role: adapter
+boundary EmailNotifier "transactional mail" {
+  provides: NotifyPort
+  tag: adapter
 }

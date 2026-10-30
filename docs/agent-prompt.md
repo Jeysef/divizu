@@ -3,113 +3,113 @@
 Point the other agent at the **tool**, not at this prompt file:
 
 - `/home/jeysef/Coding/DIviz/README.md` — DSL, CLI, API, limitations
-- `/home/jeysef/Coding/DIviz/examples/checkout.di` — canonical working example
-- `/home/jeysef/Coding/DIviz/examples/checkout-preview.png` — what the output looks like
+- `/home/jeysef/Coding/DIviz/examples/quickstart.di` — small working example
+- `/home/jeysef/Coding/DIviz/examples/shared.di` — shared-provider example
+- `/home/jeysef/Coding/DIviz/examples/large.di` — 28-block system map
 - `/home/jeysef/Coding/DIviz/dist/cli.js` — the renderer to execute
-- `/home/jeysef/Coding/DIviz/test/renderer.test.ts` — layout invariants, if it needs to verify geometry
+- `/home/jeysef/Coding/DIviz/test/renderer.test.ts` — parser and layout invariants
 
 ---
 
 ## Copy-paste prompt
 
 ```text
-You are working in this repository. Your task is to produce one or more
-dependency-injection diagrams using the `diviz` renderer.
+You are working in this repository. Produce one or more architecture diagrams
+using the `divizu` renderer.
 
 TOOL
   Location: /home/jeysef/Coding/DIviz
   Read first:
-    - /home/jeysef/Coding/DIviz/README.md          (DSL + CLI + limits)
-    - /home/jeysef/Coding/DIviz/examples/checkout.di
-    - /home/jeysef/Coding/DIviz/examples/checkout-preview.png
+    - /home/jeysef/Coding/DIviz/README.md
+    - /home/jeysef/Coding/DIviz/examples/quickstart.di
+    - /home/jeysef/Coding/DIviz/examples/shared.di
   Do not modify the renderer unless explicitly asked.
 
 RUN
+  node /home/jeysef/Coding/DIviz/dist/cli.js <input.di> --check
+  node /home/jeysef/Coding/DIviz/dist/cli.js <input.di> --check --json
   node /home/jeysef/Coding/DIviz/dist/cli.js <input.di> -o <output.svg>
-  node /home/jeysef/Coding/DIviz/dist/cli.js <input.di> --json > <layout.json>
 
   If dist/cli.js is missing:
     cd /home/jeysef/Coding/DIviz && npm install && npm run build
 
 GOAL
-  1. Find this repo's DI composition root(s) and registrations.
-  2. Map them to the diviz DSL:
-       block   = a container, module, service, or adapter
-       socket  = an injection point / constructor dependency
-       plug    = the implementation bound to that socket
-       modules = internal collaborators that are NOT separately plugged
+  1. Find this repo's entry points, internal components, boundaries and values.
+  2. Map them to the divizu DSL. Choose ONE of four roles for every block:
+       root       — program / entry point (cannot be used as a provider)
+       component  — internal code that gets wired in
+       boundary   — DB, network, queue, filesystem or vendor adapter
+       value      — config / injected data with no behaviour
   3. Write DSL to: docs/di/<name>.di
-  4. Render to:    docs/di/<name>.svg
-  5. Validate with --json and report the result.
+  4. Validate. Fix every error. Then render to: docs/di/<name>.svg
+  5. Report what is intentionally omitted.
 
 DSL GRAMMAR
-  BlockId ["optional subtitle"] {
-    role: root | composite | adapter | service | port | layer | context
-    modules: Name, "Name, with comma", Name
-    socket PortName
-    socket PortName <- ProviderBlockId
+  root|component|boundary|value BlockId ["subtitle"] {
+    provides: ServiceKey, "Quoted/Key"
+    needs ServiceKey
+    needs ServiceKey <- ProviderBlockId
+    needs ServiceKey <- fresh ProviderBlockId
+    modules: Name, "Name, with comma"
+    candidates: Name, Name(RequiredKey)
+    tag: open, vocabulary
+    src: "path/to/file.ts:42"
+    label: "Display name"
   }
 
-  - `socket PortName`            = unbound (dashed pill)
-  - `socket PortName <- X`       = wired to block X
-  - role is optional. Socket-less blocks infer `adapter`; socket-bearing
-    blocks infer `composite`.
-  - `#` and `//` comments are supported.
-  - Modules may continue on the next line when the line ends with `,`.
-  - Prefer one dependency per `socket` line.
+  - Braces are mandatory. Directives end at a newline or `;`.
+  - Shared providers are drawn once. `fresh` opts into a separate instance.
+  - `provides:` is checked against consuming needs when present.
+  - `tag:` is open vocabulary: closer, scoped, singleton, factory, etc.
+  - `src:` records provenance for `--check --verify-src`.
+  - Comments only start at a token boundary, so C#Parser is a name.
+  - Quote names with spaces or punctuation.
+  - Every non-root block must be referenced. Every root must be unreferenced.
+  - Cycles are rejected. Cut a callback/event loop with an unbound need.
 
 MINIMAL EXAMPLE
-  Root {
-    socket PaymentPort <- StripePayment
+  root App {
+    needs Orders <- OrdersLive
+    needs Clock
   }
 
-  StripePayment {}
+  component OrdersLive {
+    provides: Orders
+    needs Logger <- LoggerLive
+  }
+
+  boundary LoggerLive {
+    provides: Logger
+    tag: singleton
+  }
 
 RULES
-  - Use exact class / module / token names from the code. Do not invent
-    dependencies that are not in the repository.
-  - One parent per block. A block is either a root or plugged into exactly
-    one socket.
-  - The graph must be acyclic. If the code has a cycle, break it with an
-    unbound socket and list the cycle in your report.
-  - Shared providers are duplicated per socket by the renderer. If a
-    singleton is used in many places, pick the most representative socket(s)
-    and mention the duplication in the report.
-  - Keep each diagram readable: roughly 5–25 blocks. Split large systems by
-    bounded context or feature instead of drawing the whole monorepo.
-  - Prefer `role: root` for the application/composition root, `composite`
-    for services that own dependencies, `service` for a live implementation
-    with methods, `layer` for a constructor/wiring recipe, `context` for
-    plain injected values (config) with no methods and no live
-    implementation, and `adapter` for leaves.
-  - Do not hand-write SVG coordinates.
-  - Do not commit unless the user asks.
+  - Use exact module/class/service names from the code. Do not invent
+    dependencies.
+  - Shared dependencies (Logger, Config, DB pool) are one block with many
+    `needs` pointing at it. Do not duplicate them.
+  - A genuinely fresh instance (request scope, prototype) uses
+    `<- fresh Provider`.
+  - Keep each plate readable: roughly 5–25 blocks. Split large systems by
+    bounded context or feature.
+  - If the project is not dependency-injection-shaped (dataflow, actors, UI
+    trees, ECS), say so instead of inventing sockets.
+  - Ask before committing.
 
 WORKFLOW
-  1. Inventory registrations (providers, modules, factories, decorators,
-     constructors).
+  1. Inventory entry points, constructors, registrations, providers, modules.
   2. Draft docs/di/<name>.di.
-  3. Run the CLI. Fix parser errors first (unknown role/provider, duplicate
-     ids, cycles).
-  4. Run with --json and sanity-check:
-       - roots[] is what you expect
-       - nodes[] has the expected block count
-       - bounds/width/height are finite
-  5. Render the SVG.
-  6. If you can view images, open the SVG/PNG and check for readability.
-     If you cannot, ask the user to look at the generated SVG.
-
-DEFINITION OF DONE
-  - CLI exits 0.
-  - docs/di/<name>.di and docs/di/<name>.svg exist.
-  - --json returns the expected roots and node count.
-  - Report contains: files written, exact command used, block/socket counts,
-    unbound sockets, duplicated shared providers, and intentional omissions.
+  3. Run --check. Fix parse and validation errors before rendering.
+  4. Run --check --json and sanity-check blocks, roots, layers and edges.
+  5. Render the SVG. If you can view images, check readability; otherwise ask
+     the user to look.
+  6. If `src:` paths are present, run --check --verify-src from the repo root.
 
 DELIVERABLE
   A short summary with:
-    - diagram file(s)
-    - the command to regenerate them
+    - diagram file(s) and the command to regenerate them
+    - block/cable counts, roots and unbound needs
+    - shared providers and any `fresh` instances
     - what is intentionally not shown
     - any cycles or ambiguous bindings you had to resolve
 ```
@@ -119,13 +119,13 @@ DELIVERABLE
 ## Optional: make it discoverable in the target repo's `AGENTS.md`
 
 ```markdown
-## Dependency injection diagrams
+## Architecture diagrams
 
 - Sources live in `docs/di/*.di`.
+- Validate with:
+  `node /home/jeysef/Coding/DIviz/dist/cli.js docs/di/<name>.di --check`
 - Render with:
   `node /home/jeysef/Coding/DIviz/dist/cli.js docs/di/<name>.di -o docs/di/<name>.svg`
-- Validate geometry with:
-  `node /home/jeysef/Coding/DIviz/dist/cli.js docs/di/<name>.di --json`
 - DSL reference: `/home/jeysef/Coding/DIviz/README.md`
 - Do not hand-edit the generated SVG; edit the `.di` source and re-render.
 ```

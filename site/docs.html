@@ -72,9 +72,9 @@
           <p class="overline">Reference manual / rev. 0.1</p>
           <h1>The whole<br />contract.</h1>
           <p class="doc-masthead-lede">
-            divizu draws dependency-injection wiring as hardware: boards,
-            drilled sockets and modules with plugs. The renderer keeps no
-            explanatory text inside the drawing. This page is the legend.
+            divizu draws dependency-injection wiring as hardware: sockets,
+            plugs and cables. The renderer keeps no explanatory text inside the
+            drawing. This page is the legend.
           </p>
         </div>
 
@@ -118,17 +118,19 @@
             </header>
 
             <p>
-              A divizu document is a list of <strong>blocks</strong>. A block is
-              a container, service, adapter or port. Blocks declare
-              <strong>sockets</strong> for the interfaces they need, and a socket
-              may name the block that provides that interface. The provider
-              plugs into the socket.
+              A divizu document is a list of <strong>blocks</strong>. Each block
+              has one of four roles: <code>root</code>, <code>component</code>,
+              <code>boundary</code> or <code>value</code>. Blocks declare
+              <strong>needs</strong> for service keys and, optionally,
+              <code>provides</code> for the keys they supply. A need may name the
+              block that provides it.
             </p>
             <p>
-              The layout reads <strong>bottom-up</strong>: the composition root
-              sits at the bottom, its sockets open upward, and implementations
-              sit above it. Multiple unplugged roots are laid out side by side
-              as a forest.
+              The layout reads <strong>bottom-up</strong> and is a
+              <strong>layered graph</strong>, not a tree. Roots sit at the
+              bottom, providers above their consumers, and shared providers are
+              drawn once with a cable to each socket. Multiple roots share the
+              same upper layers.
             </p>
 
             <div class="note">
@@ -186,37 +188,22 @@
               <div class="role-card">
                 <div class="swatch swatch-root"></div>
                 <strong>root</strong>
-                <span>The composition root and baseplate. Sits at the bottom with a bottom-left title.</span>
+                <span>The program or composition root. Sits at the bottom, owns needs, and cannot be used as a provider.</span>
               </div>
               <div class="role-card">
-                <div class="swatch swatch-service"></div>
-                <strong>composite</strong>
-                <span>A container that hosts sockets and modules. Inferred for socket-bearing blocks.</span>
+                <div class="swatch swatch-component"></div>
+                <strong>component</strong>
+                <span>Internal code that gets wired in. The default building block: services, handlers, layers, repositories.</span>
               </div>
               <div class="role-card">
-                <div class="swatch swatch-service"></div>
-                <strong>service</strong>
-                <span>A provided service or factory. Same blue as composite, different intent.</span>
+                <div class="swatch swatch-boundary"></div>
+                <strong>boundary</strong>
+                <span>Code that itself crosses the process boundary: database, network, queue, filesystem, vendor SDK.</span>
               </div>
               <div class="role-card">
-                <div class="swatch swatch-adapter"></div>
-                <strong>adapter</strong>
-                <span>A leaf implementation. Inferred for blocks with no sockets or candidates.</span>
-              </div>
-              <div class="role-card">
-                <div class="swatch swatch-port"></div>
-                <strong>port</strong>
-                <span>An interface boundary marker when the distinction matters.</span>
-              </div>
-              <div class="role-card">
-                <div class="swatch swatch-layer"></div>
-                <strong>layer</strong>
-                <span>A constructor / wiring recipe. The Effect-style <code>Layer</code> role.</span>
-              </div>
-              <div class="role-card">
-                <div class="swatch swatch-context"></div>
-                <strong>context</strong>
-                <span>Plain injected values such as config. No methods, no live implementation.</span>
+                <div class="swatch swatch-value"></div>
+                <strong>value</strong>
+                <span>Injected data with no behaviour: config, constants, feature flags. Values cannot declare needs.</span>
               </div>
             </div>
 
@@ -231,27 +218,20 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr><td><code>root</code></td><td>#f1602f</td><td>#c2410c</td><td>Application / container entry point</td></tr>
-                  <tr><td><code>composite</code></td><td>#6f9fce</td><td>#2b5e98</td><td>Service that owns dependencies</td></tr>
-                  <tr><td><code>service</code></td><td>#6f9fce</td><td>#2b5e98</td><td>Factory or provider with candidates</td></tr>
-                  <tr><td><code>adapter</code></td><td>#d7a24a</td><td>#9a6b12</td><td>Concrete leaf implementation</td></tr>
-                  <tr><td><code>port</code></td><td>#a9c46a</td><td>#4f6f13</td><td>Interface boundary marker</td></tr>
-                  <tr><td><code>layer</code></td><td>#a78bfa</td><td>#7c3aed</td><td>Constructor / wiring recipe (Effect-style Layer)</td></tr>
-                  <tr><td><code>context</code></td><td>#2dd4bf</td><td>#0f766e</td><td>Plain injected values (config), no methods</td></tr>
+                  <tr><td><code>root</code></td><td>#f1602f</td><td>#c2410c</td><td>Program / entry point</td></tr>
+                  <tr><td><code>component</code></td><td>#6f9fce</td><td>#2b5e98</td><td>Internal service, handler or layer</td></tr>
+                  <tr><td><code>boundary</code></td><td>#d7a24a</td><td>#9a6b12</td><td>Database, network, queue, vendor adapter</td></tr>
+                  <tr><td><code>value</code></td><td>#2dd4bf</td><td>#0f766e</td><td>Config or injected data, no methods</td></tr>
                 </tbody>
               </table>
             </div>
 
             <p>
-              Roles are optional. A socket-less block with no candidates
-              defaults to <code>adapter</code>; a socket-bearing block defaults
-              to <code>composite</code>.
-            </p>
-            <p>
-              Use <code>layer</code> for a constructor or wiring recipe
-              (Effect-style <code>Layer</code>), and <code>context</code> for
-              plain injected values such as config: data with no methods and no
-              live implementation.
+              Every block must start with its role. There is no inference and no
+              <code>role:</code> directive, so an agent cannot quietly turn a
+              service into an adapter. <code>tag:</code> carries open-vocabulary
+              language details such as <code>closer</code>, <code>scoped</code>
+              or <code>singleton</code> without changing the drawing.
             </p>
           </section>
 
@@ -264,64 +244,69 @@
 
             <p>
               A <strong>socket</strong> is a U-shaped notch cut into the top edge
-              of a block. Its width comes from the port name. An interface pill
+              of a block. Its width comes from the requirement key. The key pill
               sits on the floor of the notch.
             </p>
 
             <ul>
               <li>
-                <code>socket PaymentPort &lt;- StripePayment</code> is a
-                <strong>bound socket</strong>: a solid pill names the interface,
-                and <code>StripePayment</code> is drawn above the socket.
+                <code>needs PaymentPort &lt;- StripePayment</code> is a
+                <strong>bound socket</strong>: a solid pill names the service
+                key, and <code>StripePayment</code> declares
+                <code>provides: PaymentPort</code>.
               </li>
               <li>
-                The provider’s bottom edge grows a <strong>tab</strong> — the
-                plug. It descends into the notch and stops just above the
-                interface pill.
+                The provider’s bottom edge grows a <strong>plug tab</strong>.
+                An orthogonal cable runs from the tab to the socket, so shared
+                providers can feed several consumers without being duplicated.
               </li>
               <li>
-                The child body is centred on the socket and sits a small
-                <code>fitGap</code> above the parent’s top edge (default 10px),
-                keeping the strokes visually clear.
+                Rows are dependency layers, not a tree. A provider sits above
+                every consumer that needs it; multiple roots share the same
+                upper layers.
               </li>
               <li>
                 Every block perimeter — top notches, body, bottom tab — is one
                 clockwise polygon rounded with a single quadratic-curve pass.
+                Cables are separate paths.
               </li>
             </ul>
 
             <p>
-              A block may have several sockets. They are ordered left-to-right,
-              and each socket reserves an envelope as wide as the wider of its
-              own notch and the provider’s whole subtree. Wide subtrees push
-              neighbouring sockets outward instead of covering them.
+              A block may have several needs. They are ordered left-to-right
+              inside the block. A provider referenced by more than one socket is
+              drawn once and wired to each consumer. Write
+              <code>needs K &lt;- fresh Provider</code> when the consumer must
+              get its own instance.
             </p>
 
             <figure class="doc-figure">
               <div class="doc-figure-head">
                 <span class="fig-id">FIG. 01</span>
                 <span class="fig-name">examples/checkout.svg</span>
-                <span class="fig-size">1170 × 552</span>
+                <span class="fig-size">903 × 788</span>
               </div>
               <div class="doc-figure-stage" data-svg="./examples/checkout.svg">
                 <img
                   src="./examples/checkout.svg"
-                  alt="Rendered checkout diagram with socket notches, interface pills and leaf adapters"
-                  width="1170"
-                  height="552"
+                  alt="Rendered checkout diagram with socket notches, interface pills and cable-connected adapters"
+                  width="903"
+                  height="788"
                 />
               </div>
               <figcaption>
                 The canonical checkout plate. The two dashed pills —
                 <code>ShippingPort</code> and <code>ReportPort</code> — are
-                unbound sockets flanking the bound <code>OrderUseCase</code>.
+                unbound needs flanking the bound <code>OrderUseCase</code>.
               </figcaption>
             </figure>
 
             <div class="note">
-              The anti-shadowing rule is the reason a wide child never hides a
-              sibling port. Left and right extents are reserved independently,
-              so asymmetric subtrees stay honest too.
+              Shared-by-default is the difference between a diagram and a
+              picture of the code. <code>DbLive</code> needed by twenty
+              components is one database node with twenty cables, not twenty
+              copies. Use <code>fresh</code> only when the runtime really
+              creates a separate instance.
             </div>
           </section>
 
@@ -332,7 +317,7 @@
               <span class="doc-sec-file">socket / dashed</span>
             </header>
 
-            <p>Write a socket without a provider to leave it unbound:</p>
+            <p>Write a need without a provider to leave it unbound:</p>
 
             <div class="code">
               <div class="code-head">
@@ -340,17 +325,16 @@
                 <span class="code-meta">DSL</span>
                 <button class="copy-btn" type="button" data-copy>Copy</button>
               </div>
-              <pre><code>CheckoutApi {
-  socket ShippingPort
-  socket OrderUseCase &lt;- OrderService
+              <pre><code>root CheckoutApi {
+  needs ShippingPort
+  needs OrderUseCase &lt;- OrderService
 }</code></pre>
             </div>
 
             <p>
-              An unbound socket has no child block. Its interface pill is drawn
-              with a dashed outline and a muted amber fill. It still carves a
-              real notch, so it participates in layout exactly like a bound
-              socket.
+              An unbound need has no provider. Its key pill is drawn with a
+              dashed outline and a muted amber fill. It still carves a real
+              notch, so it participates in layout exactly like a bound socket.
             </p>
             <p>
               Use unbound sockets for dependencies that live outside the
@@ -378,14 +362,14 @@
                 <span class="code-meta">DSL</span>
                 <button class="copy-btn" type="button" data-copy>Copy</button>
               </div>
-              <pre><code>OrderService "composite" {
-  role: composite
+              <pre><code>component OrderService "application service" {
+  provides: Orders
   modules: OrderValidator, PricingEngine, OrderMapper
 }</code></pre>
             </div>
 
             <ul>
-              <li>Modules do not create nodes, sockets or layout edges.</li>
+              <li>Modules do not create nodes, needs or layout edges.</li>
               <li>Root containers are intentionally empty: modules on a root are ignored.</li>
               <li>Quote a name to include a comma: <code>"conn pool, primary"</code>.</li>
               <li>A module list may continue on the next line when the line ends with a comma.</li>
@@ -412,9 +396,9 @@
                 <span class="code-meta">DSL</span>
                 <button class="copy-btn" type="button" data-copy>Copy</button>
               </div>
-              <pre><code>PreviewGeneratorFactory "factory" {
-  role: service
-  socket ImageScaler &lt;- SharpImageScaler
+              <pre><code>component PreviewGeneratorFactory "factory" {
+  provides: PreviewGenerator
+  needs ImageScaler &lt;- SharpImageScaler
   candidates: DocumentPreview, ImagePreview(ImageScaler), VideoPreview
 }</code></pre>
             </div>
@@ -437,14 +421,14 @@
               <div class="doc-figure-head">
                 <span class="fig-id">FIG. 02</span>
                 <span class="fig-name">examples/candidates.svg</span>
-                <span class="fig-size">1235 × 722</span>
+                <span class="fig-size">1100 × 950</span>
               </div>
               <div class="doc-figure-stage" data-svg="./examples/candidates.svg">
                 <img
                   src="./examples/candidates.svg"
                   alt="Rendered candidates example with two factories and side notches"
-                  width="1235"
-                  height="722"
+                  width="1100"
+                  height="950"
                 />
               </div>
               <figcaption>
@@ -477,13 +461,20 @@
                 <span class="code-meta">EBNF-ish</span>
                 <button class="copy-btn" type="button" data-copy>Copy</button>
               </div>
-              <pre><code>BlockId ["subtitle"] {
-  role: root | composite | service | adapter | port | layer | context
-  modules: name, "name, with comma", name
-  candidates: Name, Name(RequiredInterface), Name
-  socket PortName
-  socket PortName &lt;- ProviderBlockId
-}</code></pre>
+              <pre><code>file       = { block } ;
+block      = role ident [ string ] "{" { NL | directive } "}" ;
+role       = "root" | "component" | "boundary" | "value" ;
+directive  =
+    "provides"   ":" list
+  | "needs"      key [ "&lt;-" [ "fresh" ] ident ]
+  | "modules"    ":" list
+  | "candidates" ":" candidate { "," candidate }
+  | "tag"        ":" list
+  | "src"        ":" string
+  | "label"      ":" name ;
+list       = name { "," [ NL ] name } ;
+candidate  = name [ "(" name ")" ] ;
+(* directives end at NL or ";" ; braces are mandatory *)</code></pre>
             </div>
 
             <div class="table-wrap">
@@ -496,46 +487,78 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td><code>BlockId "subtitle" { ... }</code></td>
-                    <td>Declares a block. Ids may contain letters, digits, <code>_</code>, <code>.</code> and <code>-</code>. Subtitles are optional.</td>
+                    <td><code>root App { ... }</code></td>
+                    <td>Declares a program/entry point. A root cannot be used as a provider.</td>
                   </tr>
                   <tr>
-                    <td><code>role: ...</code></td>
-                    <td>One of <code>root</code>, <code>composite</code>, <code>service</code>, <code>adapter</code>, <code>port</code>, <code>layer</code>, <code>context</code>.</td>
+                    <td><code>component Orders { ... }</code></td>
+                    <td>Internal code that gets wired in.</td>
+                  </tr>
+                  <tr>
+                    <td><code>boundary Db { ... }</code></td>
+                    <td>Code that crosses a process boundary: DB, queue, HTTP, vendor SDK.</td>
+                  </tr>
+                  <tr>
+                    <td><code>value Config { ... }</code></td>
+                    <td>Injected data with no behaviour. Values cannot declare needs.</td>
+                  </tr>
+                  <tr>
+                    <td><code>provides: Orders, Reports</code></td>
+                    <td>Service keys this block supplies. Checked against consuming needs.</td>
+                  </tr>
+                  <tr>
+                    <td><code>needs Port</code></td>
+                    <td>Unbound requirement: dashed pill, no provider.</td>
+                  </tr>
+                  <tr>
+                    <td><code>needs Port &lt;- Provider</code></td>
+                    <td>Bound requirement: provider is shared by default.</td>
+                  </tr>
+                  <tr>
+                    <td><code>needs Port &lt;- fresh Provider</code></td>
+                    <td>Creates a separate provider instance for this consumer.</td>
                   </tr>
                   <tr>
                     <td><code>modules: a, b</code></td>
-                    <td>Internal collaborators rendered as compact horizontal rows.</td>
+                    <td>Internal collaborators rendered as compact rows.</td>
                   </tr>
                   <tr>
                     <td><code>candidates: A, B(IFace)</code></td>
-                    <td>Alternative implementations; the optional argument adds a side notch and rotated pill.</td>
+                    <td>Alternative implementations; the argument adds a side notch.</td>
                   </tr>
                   <tr>
-                    <td><code>socket Port</code></td>
-                    <td>Unbound dependency: dashed pill, no provider.</td>
+                    <td><code>tag: closer, scoped</code></td>
+                    <td>Open-vocabulary labels with no layout or colour effect.</td>
                   </tr>
                   <tr>
-                    <td><code>socket Port &lt;- Provider</code></td>
-                    <td>Bound dependency: solid pill plus a provider plug.</td>
+                    <td><code>src: "path:line"</code></td>
+                    <td>Provenance for <code>--check --verify-src</code> and tooling.</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <h3>Details</h3>
+            <h3>Lexical rules</h3>
             <ul>
-              <li><code>#</code> and <code>//</code> start a comment outside quoted strings.</li>
-              <li>Angle brackets are tolerated: <code>socket &lt;Port&gt; &lt;- &lt;Provider&gt;</code>.</li>
-              <li>Blank bodies are valid: <code>Leaf {}</code>.</li>
-              <li>Modules continue across lines when the line ends with a comma.</li>
-              <li>Block ids must be unique; socket references must resolve.</li>
-              <li>The graph must be acyclic and every block must be reachable from a root.</li>
+              <li>
+                <code>#</code> and <code>//</code> start a comment only at a
+                token boundary, so <code>C#Parser</code> and
+                <code>foo//bar</code> are identifiers.
+              </li>
+              <li>
+                Names can be quoted for spaces and punctuation:
+                <code>provides: "@app/Users"</code>, <code>label: "Repo&lt;T&gt;"</code>.
+              </li>
+              <li>Lists continue after a comma and a newline.</li>
+              <li>Directives end at a newline or <code>;</code>. Braces are mandatory.</li>
+              <li>Block ids must be unique; provider references must resolve.</li>
+              <li>Every block must be reachable from a root, and every root must be unreferenced.</li>
             </ul>
             <p>
-              Validation is intentionally strict. Duplicate ids, unknown roles,
-              unknown providers, unreachable blocks and cycles fail with a
-              readable error instead of producing a misleading diagram.
+              Validation is intentionally strict. Duplicate ids, duplicate
+              needs, ambiguous providers, mismatched <code>provides</code>,
+              orphan blocks, malformed values and cycles fail with a
+              file-relative <code>line:column</code> and a fix hint.
             </p>
           </section>
 
@@ -554,10 +577,10 @@
               data platform — and let the renderer lay the roots side by side.
             </p>
             <p>
-              Each root keeps its own subtree. Shared providers are duplicated
-              per socket by design, so every plate stays honest instead of
-              growing crossing edges. Use <code>modules:</code> to compress
-              internals, unbound sockets to stop at external systems, and
+              The graph is layered, not a tree. A provider referenced by several
+              consumers is drawn once and wired to each socket; shared
+              infrastructure does not multiply. Use <code>modules:</code> to
+              compress internals, unbound needs to stop at external systems, and
               <code>candidates:</code> for alternatives.
             </p>
 
@@ -570,29 +593,30 @@
 
             <h3>Atlas Commerce / 28 blocks</h3>
             <p>
-              This imagined commerce platform is one file with three roots:
-              storefront, operator console, and async workers. Every provider
-              has one parent; no subtree is duplicated. The full plate is the
-              system map — each context can be rendered separately for a closer
-              read.
+              This imagined commerce platform is one file with 28 blocks, three
+              roots and 25 cables: storefront, operator console, and async
+              workers. Shared infrastructure is drawn once. The full plate is
+              the system map — each context can be rendered separately for a
+              closer read.
             </p>
 
             <figure class="doc-figure doc-figure-wide">
               <div class="doc-figure-head">
                 <span class="fig-id">FIG. 03</span>
                 <span class="fig-name">examples/large.svg</span>
-                <span class="fig-size">3217 × 674 / 28 blocks</span>
+                <span class="fig-size">2972 × 886 / 28 blocks</span>
                 <a class="fig-open" href="./examples/large.svg">Open SVG ↗</a>
               </div>
               <div
                 class="doc-figure-stage is-pannable"
                 data-svg="./examples/large.svg"
+                data-start="bottom"
               >
                 <img
                   src="./examples/large.svg"
                   alt="A 28-block Atlas Commerce system map with storefront, operator console and async worker roots"
-                  width="3217"
-                  height="674"
+                  width="2972"
+                  height="886"
                 />
               </div>
               <figcaption>
@@ -617,19 +641,19 @@
                 every class a socket.
               </li>
               <li>
-                <strong>Stop at externals.</strong> Leave a socket unbound when
+                <strong>Stop at externals.</strong> Leave a need unbound when
                 the dependency lives outside the diagram — a queue, a vendor,
                 another team's service.
               </li>
               <li>
-                <strong>Let shared providers duplicate.</strong> A provider
-                referenced twice is drawn twice with unique keys. That is
-                clearer than one line crossing half the plate.
+                <strong>Draw shared providers once.</strong> A provider
+                referenced by many consumers stays one node with many cables.
+                Use <code>fresh</code> only for a genuinely separate instance.
               </li>
             </ul>
 
             <p>
-              This 28-block map renders in about 0.6 ms in Node and a few
+              This 28-block map renders in about 1.4 ms in Node and a few
               milliseconds in the browser. The compiler scales; the reading
               limit is yours. The
               <a href="./playground.html">playground</a> includes this plate as
@@ -657,8 +681,11 @@
                 <span class="code-meta">Node 18+</span>
                 <button class="copy-btn" type="button" data-copy>Copy</button>
               </div>
-              <pre><code>diviz &lt;input.di&gt; [options]
-cat graph.di | diviz [options]</code></pre>
+              <pre><code>divizu &lt;input.di&gt; [options]
+cat graph.di | divizu [options]
+
+divizu architecture.di --check --json
+divizu architecture.di --check --verify-src</code></pre>
             </div>
 
             <div class="table-wrap">
@@ -670,12 +697,14 @@ cat graph.di | diviz [options]</code></pre>
                   <tr><td><code>-o, --out &lt;file&gt;</code></td><td>Write SVG to a file (default: stdout)</td></tr>
                   <tr><td><code>-t, --theme &lt;mode&gt;</code></td><td><code>auto</code>, <code>dark</code> or <code>light</code> (default <code>auto</code>)</td></tr>
                   <tr><td><code>-p, --padding &lt;px&gt;</code></td><td>Canvas padding (default 56)</td></tr>
-                  <tr><td><code>--radius &lt;px&gt;</code></td><td>Corner radius (default 10)</td></tr>
-                  <tr><td><code>--fit-gap &lt;px&gt;</code></td><td>Edge-to-edge plug gap, 4–20 (default 10)</td></tr>
-                  <tr><td><code>--socket-gap &lt;px&gt;</code></td><td>Space between socket envelopes (default 28)</td></tr>
+                  <tr><td><code>--radius &lt;px&gt;</code></td><td>Corner radius (default 8)</td></tr>
+                  <tr><td><code>--layer-gap &lt;px&gt;</code></td><td>Space between dependency layers (default 78)</td></tr>
+                  <tr><td><code>--socket-gap &lt;px&gt;</code></td><td>Space between sockets and nodes (default 28)</td></tr>
                   <tr><td><code>--responsive</code></td><td>Emit <code>width="100%" height="100%"</code></td></tr>
                   <tr><td><code>--title &lt;text&gt;</code></td><td>Accessible SVG title</td></tr>
-                  <tr><td><code>--json</code></td><td>Print computed layout geometry instead of SVG</td></tr>
+                  <tr><td><code>--check</code></td><td>Validate without rendering</td></tr>
+                  <tr><td><code>--json</code></td><td>Layout JSON; with <code>--check</code>, a validation report</td></tr>
+                  <tr><td><code>--verify-src</code></td><td>With <code>--check</code>, verify <code>src:</code> paths exist</td></tr>
                   <tr><td><code>-w, --watch</code></td><td>Re-render when the input file changes</td></tr>
                 </tbody>
               </table>
@@ -689,7 +718,7 @@ cat graph.di | diviz [options]</code></pre>
                 <span class="code-meta">ESM</span>
                 <button class="copy-btn" type="button" data-copy>Copy</button>
               </div>
-              <pre><code><span class="c-key">import</span> { render, mount, layout, parseDSL } <span class="c-key">from</span> <span class="c-str">"diviz"</span>;
+              <pre><code><span class="c-key">import</span> { render, mount, layout, validate } <span class="c-key">from</span> <span class="c-str">"divizu"</span>;
 
 <span class="c-key">const</span> { svg, width, height } = <span class="c-fn">render</span>(dsl, {
   theme: <span class="c-str">"dark"</span>,
@@ -700,17 +729,22 @@ cat graph.di | diviz [options]</code></pre>
   theme: <span class="c-str">"light"</span>,
 });
 
+<span class="c-com">// Agent loop: validate before rendering.</span>
+<span class="c-key">const</span> report = <span class="c-fn">validate</span>(dsl);
+<span class="c-key">if</span> (!report.ok) console.error(report.errors);
+
 <span class="c-com">// Geometry for tests or hit testing:</span>
 <span class="c-key">const</span> geometry = <span class="c-fn">layout</span>(dsl);
 <span class="c-key">for</span> (<span class="c-key">const</span> node <span class="c-key">of</span> geometry.nodes) {
-  console.log(node.id, node.x, node.y, node.width, node.height);
+  console.log(node.label, node.layer, node.x, node.y, node.width);
 }</code></pre>
             </div>
 
             <p>
               Exports: <code>render</code>, <code>mount</code>,
-              <code>layout</code>, <code>parseDSL</code>, <code>themeCss</code>
-              and the <code>THEME_CSS</code> constant.
+              <code>layout</code>, <code>validate</code>,
+              <code>parseDocument</code>, <code>parseDSL</code>,
+              <code>themeCss</code> and the <code>THEME_CSS</code> constant.
             </p>
           </section>
 
@@ -735,9 +769,12 @@ cat graph.di | diviz [options]</code></pre>
               </div>
               <pre><code>.my-diagram .di-viz {
   --di-canvas-bg: #0b1020;
-  --di-stroke-container: #22d3ee;
   --di-surface: #131a2b;
-  --di-pill-bg: #24476b;
+  --di-stroke-root: #22d3ee;
+  --di-stroke-component: #93c5fd;
+  --di-stroke-boundary: #fbbf24;
+  --di-stroke-value: #5eead4;
+  --di-wire: #64748b;
 }</code></pre>
             </div>
 
@@ -749,7 +786,7 @@ cat graph.di | diviz [options]</code></pre>
               <code>--theme light</code> for a static light SVG.
             </p>
             <p>
-              <code>diviz/theme.css</code> is generated at build time if you
+              <code>divizu/theme.css</code> is generated at build time if you
               prefer an external stylesheet.
             </p>
           </section>
@@ -763,18 +800,18 @@ cat graph.di | diviz [options]</code></pre>
 
             <ul>
               <li>
-                <strong>Shared providers are duplicated per socket.</strong> A
-                provider referenced twice is drawn twice with unique instance
-                keys. A true shared-singleton edge notation is not implemented
-                yet.
+                <strong>Shared providers are drawn once.</strong> Use
+                <code>fresh</code> for a separate instance. Fresh expansion
+                still grows the instance count; it is guarded at 5,000.
               </li>
               <li>
-                <strong>Graphs must be acyclic.</strong> Cycles and unreachable
-                blocks are rejected with a descriptive error.
+                <strong>Graphs must be acyclic.</strong> Cycles, orphan blocks
+                and unreachable blocks are rejected with a descriptive error.
               </li>
               <li>
-                <strong>One parent per block.</strong> A block is either a root or
-                plugged into exactly one socket.
+                <strong>Roots are explicit.</strong> One or more
+                <code>root</code> blocks are required. A root cannot be used as
+                a provider.
               </li>
               <li>
                 <strong>Text width is heuristic.</strong> Monospace
@@ -787,8 +824,14 @@ cat graph.di | diviz [options]</code></pre>
                 rotate to the sides yet.
               </li>
               <li>
-                <strong>5,000-instance safety limit.</strong> Guards against
-                exponential growth when shared subtrees are duplicated heavily.
+                <strong>Tags are open vocabulary.</strong> <code>tag:</code>
+                adds meaning for humans and agents, not colour or layout. Use
+                roles for the four structural categories.
+              </li>
+              <li>
+                <strong>Source verification is path-level.</strong>
+                <code>--verify-src</code> checks that <code>src:</code> files
+                exist; it does not type-check the code in them.
               </li>
             </ul>
           </section>

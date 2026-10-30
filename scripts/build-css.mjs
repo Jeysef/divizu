@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { chmodSync, mkdirSync, writeFileSync } from "node:fs";
-import { themeCss } from "../src/renderer.ts";
+import { themeCss } from "../src/theme.ts";
 
 const dist = new URL("../dist/", import.meta.url);
 mkdirSync(dist, { recursive: true });

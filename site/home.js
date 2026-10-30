@@ -1,27 +1,34 @@
 import { parseDSL, render } from "./dist/index.js";
 import { gutterNumbers, highlightDsl, lineCount } from "./highlight.js";
 
-const SAMPLE = `CheckoutApi "root" {
-  role: root
-  socket Orders <- OrderService
-  socket Telemetry
-  socket Catalog <- PostgresCatalog
-  socket Config <- AppConfig
+const SAMPLE = `root CheckoutApi "root" {
+  needs Orders <- OrderService
+  needs Telemetry
+  needs Catalog <- PostgresCatalog
+  needs Config <- AppConfig
 }
 
-OrderService "composite" {
-  role: composite
+component OrderService "application service" {
+  provides: Orders
   modules: ValidateCart, PriceOrder
-  socket Payments <- StripeAdapter
+  needs Payments <- StripeGateway
 }
 
-StripeAdapter { role: adapter }
+boundary StripeGateway "payments" {
+  provides: Payments
+  tag: adapter
+}
 
-PostgresCatalog "adapter" {
+boundary PostgresCatalog "catalog database" {
+  provides: Catalog
   modules: "conn pool"
+  tag: adapter
 }
 
-AppConfig "context" { role: context }
+value AppConfig "context" {
+  provides: Config
+  tag: config
+}
 `;
 
 const OPTIONS = {

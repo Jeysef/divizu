@@ -1,12 +1,11 @@
 # divizu
 
-> A deterministic DSL → SVG renderer for architecture diagrams that coding agents can write.
+> A deterministic DSL → SVG compiler for architecture diagrams that coding agents can write.
 
-divizu gives a coding agent a tiny language for expressing a repository's
-architecture as a drawing with real sockets, plugs and modules. The user gets a
-clean SVG instead of a wall of prose. The renderer has zero runtime
-dependencies, needs no browser, and produces byte-identical output for the same
-DSL.
+divizu lets an agent express a repository's wiring as a layered drawing. Roots
+sit at the bottom, dependencies above them, and shared providers are drawn once
+with a cable to each consumer. The renderer has zero runtime dependencies, needs
+no browser, and produces deterministic output for the same DSL.
 
 ## Start here
 
@@ -14,7 +13,7 @@ DSL.
 - Playground: https://jeysef.github.io/divizu/playground.html
 - Reference manual: https://jeysef.github.io/divizu/docs.html
 - Quickstart source: https://jeysef.github.io/divizu/examples/quickstart.di
-- Quickstart output: https://jeysef.github.io/divizu/examples/quickstart.svg
+- Shared layers: https://jeysef.github.io/divizu/examples/shared.di
 - Large system map (28 blocks): https://jeysef.github.io/divizu/examples/large.di
 
 ## Use it
@@ -23,7 +22,8 @@ Ask the agent:
 
 > Use divizu to diagram this project's architecture. Read
 > https://jeysef.github.io/divizu/skills/divizu.md and follow it. Write the
-> architecture as a `.di` file, render it to SVG, and show me the result.
+> architecture as a `.di` file, validate it, render it to SVG, and show me the
+> result.
 
 Fastest delivery without installing anything: URL-encode the DSL and return a
 playground link.
@@ -39,50 +39,79 @@ git clone --depth 1 https://github.com/Jeysef/divizu
 cd divizu
 npm install
 npm run build
+node dist/cli.js architecture.di --check
 node dist/cli.js architecture.di -o architecture.svg
 ```
+
+## Roles
+
+Exactly four:
+
+- `root` — program/entry point; cannot be used as a provider.
+- `component` — internal code that gets wired in.
+- `boundary` — database, network, queue, filesystem or vendor adapter.
+- `value` — config/injected data with no behaviour.
+
+Language details go in `tag:`. `provides:` declares service keys. Shared
+providers are drawn once; `<- fresh Provider` opts into a separate instance.
+`src: "path:line"` records provenance for `--check --verify-src`.
 
 ## DSL
 
 ```dsl
-CheckoutApi "composition root" {
-  role: root
-  socket Orders <- OrderService
-  socket Telemetry
-  socket Config <- AppConfig
+root CheckoutApp "cmd/api" {
+  src: "cmd/api/main.go:24"
+  needs Orders <- OrdersLive
+  needs Clock
 }
 
-OrderService "application service" {
-  role: composite
+component OrdersLive "order use case" {
+  provides: Orders
+  src: "internal/orders/live.go:18"
+  tag: service
+  needs Db <- DbLive
+  needs Logger <- LoggerLive
   modules: ValidateCart, PriceOrder
-  socket Payments <- StripeAdapter
 }
 
-StripeAdapter { role: adapter }
+boundary DbLive "postgres" {
+  provides: Db
+  src: "internal/db/pg.go:12"
+  tag: closer
+}
 
-AppConfig "context" { role: context }
+value AppConfig "config" {
+  provides: Config
+  src: "internal/config/config.go:9"
+}
 ```
 
 ```dsl
-BlockId ["subtitle"] {
-  role: root | composite | service | adapter | port | layer | context
-  modules: name, "name, with comma", name
-  candidates: Name, Name(RequiredInterface), Name
-  socket PortName
-  socket PortName <- ProviderBlockId
-}
+file       = { block } ;
+block      = role ident [ string ] "{" { NL | directive } "}" ;
+role       = "root" | "component" | "boundary" | "value" ;
+directive  =
+    "provides"   ":" list
+  | "needs"      key [ "<-" [ "fresh" ] ident ]
+  | "modules"    ":" list
+  | "candidates" ":" candidate { "," candidate }
+  | "tag"        ":" list
+  | "src"        ":" string
+  | "label"      ":" name ;
+list       = name { "," [ NL ] name } ;
+candidate  = name [ "(" name ")" ] ;
 ```
 
-The layout reads bottom-up: the root sits at the bottom, sockets open upward,
-and implementations sit above them. Use unbound sockets for dependencies outside
-the diagram. Keep diagrams to roughly 5–25 blocks and split large systems by
-bounded context.
+Braces are mandatory. Directives end at a newline or `;`. Comments only start at
+a token boundary, so `C#Parser` is a name. Quote names with spaces or
+punctuation. Every non-root block must be referenced; every root must be
+unreferenced. Cycles are rejected. Use unbound needs for external systems.
 
 ## Properties
 
 - Input: plain-text `.di` DSL.
-- Output: deterministic, self-contained SVG.
+- Output: deterministic, self-contained SVG with a layered DAG layout.
 - Runtime: zero dependencies, no DOM, no canvas, no headless browser.
-- Validation: duplicate ids, dangling providers, unreachable blocks and cycles
-  fail with readable errors.
+- Validation: file-relative `line:column`, fix hints, `--check --json`,
+  `--check --verify-src`.
 - License: MIT.

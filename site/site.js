@@ -21,6 +21,11 @@ async function inlineExamples() {
         svg.setAttribute("data-theme", "dark");
         host.replaceChildren(svg);
         host.classList.add("is-inline");
+        if (host.dataset.start === "bottom") {
+          window.setTimeout(() => {
+            host.scrollTop = host.scrollHeight;
+          }, 80);
+        }
       } catch {
         /* Keep the fallback image. */
       }
@@ -76,6 +81,12 @@ function wirePannable() {
     let active = false;
     let startX = 0;
     let startScroll = 0;
+
+    if (panel.dataset.start === "bottom") {
+      window.setTimeout(() => {
+        panel.scrollTop = panel.scrollHeight;
+      }, 80);
+    }
 
     panel.addEventListener("pointerdown", (event) => {
       if (event.pointerType !== "mouse" || event.button !== 0) return;

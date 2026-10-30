@@ -1,12 +1,14 @@
-# diviz
+# divizu
 
-Deterministic, zero-runtime-dependency **DSL → SVG** renderer for
-hardware-slot / puzzle-piece dependency-injection diagrams.
+Deterministic **DSL → SVG** architecture diagrams for coding agents. An agent
+reads the repository, writes a small `.di` file, validates it, and gives the user
+a layered drawing with sockets, plugs and cables.
 
-Inspired by [`obsidianmd/pele`](https://github.com/obsidianmd/pele)'s
-sub-millisecond compiler pipeline and the declarative geometry of D2 / Pikchr.
-No DOM, no headless browser, no text-measurement API: the same DSL always
-produces byte-identical SVG.
+- Zero runtime dependencies.
+- No DOM, canvas or browser needed.
+- Same DSL → byte-identical SVG.
+- Shared providers are drawn once; `fresh` opts into a separate instance.
+- Strict parser and validator with file-relative `line:column` and fix hints.
 
 ![Checkout DI example](examples/checkout.svg)
 
@@ -18,333 +20,274 @@ Try the [live sample](https://jeysef.github.io/divizu/), open the
 
 Point a coding agent at the [skill](https://jeysef.github.io/divizu/skills/divizu.md)
 or the [llms.txt](https://jeysef.github.io/divizu/llms.txt) context file. The
-agent can write a `.di` file, render it with the CLI, or hand back a playground
-link without installing anything.
+agent can validate the DSL, render an SVG, or hand back a playground link
+without installing anything.
 
-## Why
-
-| Problem with hand-written / AI-generated SVGs | What diviz does |
-| --- | --- |
-| A wide composite service covers its sibling ports | Each socket reserves `max(own notch, child subtree)` on **each side**; wide subtrees push neighbours outward |
-| Full-width stretched boxes | Width comes from `max(socket span, content)`, never from the canvas |
-| Overlapping borders and plugs | Children snap above their parent socket with a uniform visible clearance |
-| Inconsistent corners | Every block is one orthogonal polygon rounded by a single `Q`-curve pass |
-| Re-rendering changes the layout | Pure integer/float geometry, no randomness, no runtime measurement |
-
-The layout is read **bottom-up**: the root container sits at the bottom, its
-sockets open upward, and implementation blocks plug down into them.
+```text
+Use divizu to diagram this project's architecture. Read
+https://jeysef.github.io/divizu/skills/divizu.md and follow it. Write the
+architecture as a .di file, validate it, render it to SVG, and show me the result.
+```
 
 ## Quick start
 
 Requirements:
 
-- Node **18+** to consume the built package / CLI.
+- Node **18+** to consume the built package or CLI.
 - Node **22.18+** to run `src/*.ts` directly (tests, dev CLI).
 
 ```bash
 npm install
 npm run build
 
-# compile the example
-node dist/cli.js examples/checkout.di -o examples/checkout.svg
-
-# or during development
-node src/cli.ts examples/checkout.di -o examples/checkout.svg
+node dist/cli.js examples/quickstart.di --check
+node dist/cli.js examples/quickstart.di -o quickstart.svg
 ```
 
-## DSL
+The package is `divizu`. The CLI is available as `divizu` (and `diviz` for
+compatibility).
+
+## Why
+
+| Problem with hand-written or AI-generated diagrams | What divizu does |
+| --- | --- |
+| A shared logger is copied into every consumer | One provider node, one cable per socket |
+| Every model invents different roles | Exactly four roles with tests an agent can apply |
+| Typos become plausible architecture | Strict validation with suggestions and `line:column` |
+| Layout depends on a browser or fonts | Monospace width grid and deterministic geometry |
+| A huge repo becomes an unreadable blob | Layered graph, 5–25 blocks per plate, split by context |
+| No provenance | `src:` per block plus `--check --verify-src` |
+
+## The DSL
 
 ```dsl
-CheckoutApi "DI container (root)" {
-  role: root
-  socket ShippingPort
-  socket OrderUseCase <- OrderService
-  socket ReportPort
+root CheckoutApp "cmd/api" {
+  src: "cmd/api/main.go:24"
+  needs Orders <- OrdersLive
+  needs Clock
 }
 
-OrderService "composite" {
-  role: composite
-  modules: OrderValidator, PricingEngine, OrderMapper
-  socket PaymentPort <- StripePayment
-  socket StockPort <- PostgresStock
-  socket NotifyPort <- EmailNotifier
+component OrdersLive "order use case" {
+  provides: Orders
+  src: "internal/orders/live.go:18"
+  tag: service
+  needs Db <- DbLive
+  needs Logger <- LoggerLive
+  modules: ValidateCart, PriceOrder
 }
 
-StripePayment "adapter" {
-  role: adapter
+boundary DbLive "postgres" {
+  provides: Db
+  src: "internal/db/pg.go:12"
+  tag: closer
+  needs Config <- AppConfig
 }
 
-PostgresStock "adapter" {
-  role: adapter
-  modules: "conn pool", migrations
+value AppConfig "config" {
+  provides: Config
+  src: "internal/config/config.go:9"
 }
-
-EmailNotifier "adapter" {}
 ```
 
 Grammar:
 
+```dsl
+file       = { block } ;
+block      = role ident [ string ] "{" { NL | directive } "}" ;
+role       = "root" | "component" | "boundary" | "value" ;
+directive  =
+    "provides"   ":" list
+  | "needs"      key [ "<-" [ "fresh" ] ident ]
+  | "modules"    ":" list
+  | "candidates" ":" candidate { "," candidate }
+  | "tag"        ":" list
+  | "src"        ":" string
+  | "label"      ":" name ;
+list       = name { "," [ NL ] name } ;
+candidate  = name [ "(" name ")" ] ;
 ```
-BlockId ["subtitle"] {
-  role: root | composite | adapter | service | port | layer | context
-  modules: name, "name, with comma", name
-  candidates: Name, Name(RequiredInterface), Name
-  socket PortName
-  socket PortName <- ProviderBlockId
+
+Rules:
+
+- Braces are mandatory, even for empty blocks: `component Leaf {}`.
+- Directives end at a newline or `;`.
+- Comments (`#`, `//`) only start at a token boundary. `C#Parser` is a name.
+- Quote names with spaces or punctuation: `provides: "@app/Users"`.
+- `provides:` is optional. When present, `needs K <- P` is checked against it.
+- Shared providers are drawn once. `needs K <- fresh P` duplicates one instance
+  for that consumer.
+- Every non-root block must be referenced; every root must be unreferenced.
+- Cycles, duplicate ids, duplicate needs and ambiguous providers are errors.
+- `modules:` are internal collaborators; `candidates:` are alternatives.
+- `tag:` is open vocabulary (`closer`, `scoped`, `singleton`, `factory`).
+- `src:` is provenance, not parsed code.
+
+### Roles
+
+| Role | Test the agent applies |
+| --- | --- |
+| `root` | The program/entry point that constructs and connects everything |
+| `component` | Internal code that gets wired in |
+| `boundary` | This code crosses a process boundary: DB, network, queue, vendor SDK |
+| `value` | Injected data with no behaviour: config, constants, flags |
+
+Language details belong in `tag:`, not in the role. A Postgres adapter built by a
+layer is both a boundary and a tagged layer; you do not need a fifth role.
+
+## Validation and the agent loop
+
+```bash
+# human-readable diagnostics with snippets
+node dist/cli.js architecture.di --check
+
+# machine-readable report
+node dist/cli.js architecture.di --check --json
+
+# check that every src: path exists
+node dist/cli.js architecture.di --check --verify-src
+```
+
+`--check --json` returns:
+
+```json
+{
+  "ok": false,
+  "file": "architecture.di",
+  "errors": [
+    {
+      "code": "unknown-provider",
+      "message": "Unknown provider \"DbLve\" for Db on \"OrdersLive\".",
+      "line": 12,
+      "column": 16,
+      "suggestion": "Did you mean \"DbLive\"?"
+    }
+  ],
+  "warnings": []
 }
 ```
 
-- `socket PortName` is unbound → dashed purple pill.
-- `socket PortName <- Provider` is wired → solid pill + provider plug.
-- `role:` is optional. Socket-less blocks infer `adapter`; socket-bearing
-  blocks infer `composite`.
-- `candidates:` renders alternative implementations as tall vertical cards with
-  rotated labels. `Name(RequiredInterface)` adds a U-shaped side notch and a
-  rotated interface pill (see `examples/candidates.di`).
-- Role colors: orange = composition root, blue = service / composite container,
-  yellow = adapter, green = port, purple = layer, teal = context. See the
-  [documentation](https://jeysef.github.io/divizu/docs.html) for the visual
-  legend, socket/plug semantics, and candidate cards.
-- Use `layer` for a constructor/wiring recipe (Effect-style `Layer`), and
-  `context` for plain injected values with no methods and no live
-  implementation (config, `Context.Reference`).
-- `#` and `//` comments are supported (outside quoted strings).
-- Modules may continue onto the next line when the line ends with `,`.
-- `<PortName>` / `<Provider>` angle brackets are tolerated.
-- Blank bodies (`Leaf {}`) are valid.
+Use `--json` without `--check` to print computed layout geometry.
 
-Validation is intentionally strict: duplicate ids, unknown roles, unknown
-providers, unreachable blocks, and cycles all fail with a readable error.
-Multiple unplugged components are rendered side by side as a forest.
+## Layout
+
+The layout is a layered DAG:
+
+1. Roots sit at the bottom.
+2. Every provider sits above all consumers that need it.
+3. Long edges get routing lanes between layers.
+4. Shared providers occupy one node per declared block.
+5. Cables are orthogonal and run behind the nodes.
+
+Multiple roots are laid out side by side and share the same upper layers. The
+useful limit is reading, not computation: keep a plate around 5–25 blocks and
+split large systems by bounded context. The renderer guards at 5,000 instances.
 
 ## CLI
 
-```
-diviz <input.di> [options]
-cat graph.di | diviz [options]
+```text
+divizu <input.di> [options]
+cat graph.di | divizu [options]
 ```
 
 | Option | Description |
 | --- | --- |
 | `-o, --out <file>` | Write SVG to a file (default: stdout) |
-| `-t, --theme <mode>` | `auto` \| `dark` \| `light` (default `auto`) |
+| `-t, --theme <mode>` | `auto`, `dark`, `light` (default `auto`) |
 | `-p, --padding <px>` | Canvas padding (default 56) |
-| `--radius <px>` | Corner radius (default 10) |
-| `--fit-gap <px>` | Edge-to-edge plug gap, 4–20 (default 10) |
-| `--socket-gap <px>` | Space between socket envelopes (default 28) |
+| `--radius <px>` | Corner radius (default 8) |
+| `--layer-gap <px>` | Space between dependency layers (default 78) |
+| `--socket-gap <px>` | Space between sockets and nodes (default 28) |
 | `--responsive` | Emit `width="100%" height="100%"` |
 | `--title <text>` | Accessible SVG title |
-| `--json` | Print computed layout geometry as JSON instead of SVG |
-| `-w, --watch` | Re-render on file change; writes `<input>.svg` by default |
+| `--check` | Validate without rendering |
+| `--json` | Layout JSON; with `--check`, a validation report |
+| `--verify-src` | With `--check`, verify `src:` paths exist |
+| `-w, --watch` | Re-render when the input file changes |
 
-Examples:
-
-```bash
-diviz checkout.di -o checkout.svg
-diviz checkout.di -w --theme dark
-diviz checkout.di --json | jq '.nodes[] | {id, x, y, width}'
-cat checkout.di | diviz > checkout.svg
-```
-
-## Library
+## API
 
 ```ts
-import { render, mount, layout, parseDSL, themeCss } from "diviz";
+import { render, mount, layout, validate } from "divizu";
 
-const { svg, width, height } = render(dsl, {
-  theme: "dark",
-  padding: 48,
-});
+const { svg, width, height } = render(dsl, { theme: "dark" });
 
-// Browser / SolidJS / React effect:
-mount(document.querySelector("#di")!, dsl, { theme: "light" });
+const report = validate(dsl);
+if (!report.ok) console.error(report.errors);
 
-// Inspect geometry (tests, hit testing, agent self-checks):
 const geometry = layout(dsl);
 for (const node of geometry.nodes) {
-  console.log(node.id, node.x, node.y, node.width, node.height);
+  console.log(node.label, node.layer, node.x, node.y, node.width);
 }
 ```
 
-`mount` accepts any object with an `innerHTML` string, so the package does not
-require DOM types in Node projects.
-
-Exports:
-
-- `render(dsl, options) → { svg, width, height }`
-- `mount(host, dsl, options) → RenderResult`
-- `layout(dsl, options) → LayoutResult` (world-space boxes, socket centers,
-  parent/child keys, subtree extents)
-- `parseDSL(source) → Map<string, BlockDef>`
-- `themeCss() / THEME_CSS`
+Exports: `render`, `mount`, `layout`, `validate`, `parseDocument`, `parseDSL`,
+`themeCss`, `THEME_CSS`, `DivizuError`, and the public types.
 
 ## Theming
 
-The SVG embeds a self-contained `<style>` block and uses low-specificity
-`:where()` selectors, so host CSS can override any variable without
-`!important`.
-
-Colors are also written as **concrete attributes** on every element. This is
-important for rasterizers and viewers that do not resolve CSS variables inside
-SVG presentation attributes (librsvg, ImageMagick, some SVG-to-PNG pipelines).
-Those viewers render the baked palette instead of black; browsers still apply
-`--di-*` overrides. In a non-CSS renderer `theme: "auto"` bakes the **dark**
-palette — use `--theme light` / `theme: "light"` for a static light SVG.
-
-| Variable | Dark | Light |
-| --- | --- | --- |
-| `--di-canvas-bg` | `#0f0f0c` | `#f2ede0` |
-| `--di-surface` | `#191914` | `#fffdf7` |
-| `--di-stroke-container` | `#f1602f` | `#c2410c` |
-| `--di-stroke-adapter` | `#d7a24a` | `#9a6b12` |
-| `--di-stroke-service` | `#6f9fce` | `#2b5e98` |
-| `--di-stroke-port` | `#a9c46a` | `#4f6f13` |
-| `--di-stroke-layer` | `#a78bfa` | `#7c3aed` |
-| `--di-stroke-context` | `#2dd4bf` | `#0f766e` |
-| `--di-fg` | `#ece7da` | `#17150f` |
-| `--di-muted` | `#918b7d` | `#6f6a5d` |
-| `--di-module-bg` | `#22221c` | `#f1ede1` |
-| `--di-module-border` | `#454338` | `#c9c3b2` |
-| `--di-module-fg` | `#d2ccbe` | `#343128` |
-| `--di-pill-bg` | `#345b78` | `#285c7a` |
-| `--di-pill-text` | `#edf2f0` | `#f7fbfc` |
-| `--di-pill-unbound` | `#b28a42` | `#8a6a1f` |
-| `--di-pill-unbound-bg` | `#211d13` | `#f6efd9` |
-| `--di-pill-unbound-text` | `#e6c88e` | `#6d520f` |
-| `--di-font` | monospace stack | monospace stack |
+The SVG embeds a self-contained stylesheet and uses low-specificity `:where()`
+selectors, so host CSS can override any `--di-*` variable without `!important`.
+Colors are also emitted as concrete attributes for rasterizers without CSS
+variable support.
 
 ```css
 .my-diagram .di-viz {
   --di-canvas-bg: #0b1020;
-  --di-stroke-container: #22d3ee;
+  --di-surface: #131a2b;
+  --di-stroke-root: #22d3ee;
+  --di-stroke-component: #93c5fd;
+  --di-stroke-boundary: #fbbf24;
+  --di-stroke-value: #5eead4;
+  --di-wire: #64748b;
 }
 ```
 
-`diviz/theme.css` is also generated at build time if you prefer an external
-stylesheet. `theme: "auto"` follows `prefers-color-scheme`; `dark` / `light`
-pin the palette via `data-theme`.
+`divizu/theme.css` is generated at build time.
 
-## Using it from another codebase
+## Examples
 
-### Option A — link the package
-
-```bash
-# once, in this repo
-npm install && npm run build && npm link
-
-# in the app repo
-npm link diviz
-npx diviz docs/di.dsl -o docs/di.svg
-```
-
-### Option B — path dependency
-
-```json
-{
-  "devDependencies": {
-    "diviz": "file:../DIviz"
-  }
-}
-```
-
-Run `npm run build` in this repo before installing, because `file:` installs do
-not run this package's build automatically. Or import the source directly on
-Node 22.18+:
-
-```js
-import { render } from "../DIviz/src/index.ts";
-```
-
-> `package.json` is marked `private` so it cannot be published accidentally.
-> Remove that flag (and choose a license) if you want to push it to a registry.
-
-### Option C — agent workflow
-
-Give an LLM only the DSL grammar above — not SVG coordinates. A typical loop:
-
-1. The agent reads the DI registrations in the target repo and writes
-   `docs/di.dsl`.
-2. It runs `diviz docs/di.dsl -o docs/di.svg` (or `--watch` while editing).
-3. `diviz` deterministically rejects missing providers, cycles, and bad syntax.
-4. If you need assertions, call `layout(dsl)` and check boxes/socket centers in
-   a test. `test/renderer.test.ts` contains the anti-overlap and
-   anti-shadowing checks as a reference.
-
-## How the layout works
-
-**Pass 1 — bottom-up envelope sizing.** For every socket:
-
-```
-envLeft  = max(notchWidth / 2, child.extentLeft)
-envRight = max(notchWidth / 2, child.extentRight)
-```
-
-The two extents are tracked independently. This matters: a child subtree can
-be asymmetric, and a symmetric envelope would still let it intrude on a
-neighbour. Socket centers are then placed with:
-
-```
-gap between centres = previous.envRight + socketGap + current.envLeft
-```
-
-so the reserved envelopes can never overlap, at any depth.
-
-**Pass 2 — top-down snap positioning.** Roots are bottom-aligned, then each
-plugged child is centred on its parent socket and its body bottom is placed
-`fitGap` above the parent's top edge. Its tab protrudes down into the notch and
-stops just above the interface pill.
-
-**Rounded orthogonal polygon.** Each block's perimeter — top notches, body,
-bottom tab — is emitted as one clockwise point array, deduplicated, and rounded
-with a `Q` Bézier at every 90° vertex. No hand-written arc commands.
-
-## Deliberate limitations
-
-- **Shared providers are duplicated per socket.** A provider referenced by two
-  sockets is drawn twice, with a unique instance key. This keeps the physical
-  plug metaphor honest, but a true DAG with one shared singleton needs a
-  link/edge notation — not implemented yet. A 5,000-instance safety limit guards
-  against exponential growth in heavily shared graphs.
-- **Graphs must be acyclic.** Cycles and unreachable blocks are rejected with a
-  descriptive error.
-- **One parent per block.** A block is either a root or plugged into exactly one
-  socket.
-- **Text width is heuristic.** Monospace character-width estimates are used
-  (no DOM). CJK or emoji-heavy labels can still overflow.
-- **No side notches / vertical module columns yet.** Modules are stacked
-  vertically inside the body; all sockets are on the top edge.
+- [quickstart.di](examples/quickstart.di) / [SVG](examples/quickstart.svg)
+- [checkout.di](examples/checkout.di) / [SVG](examples/checkout.svg)
+- [shared.di](examples/shared.di) / [SVG](examples/shared.svg)
+- [candidates.di](examples/candidates.di) / [SVG](examples/candidates.svg)
+- [large.di](examples/large.di) / [SVG](examples/large.svg) — 28 blocks, 3 roots
 
 ## Development
 
 ```bash
-npm test           # node:test, TypeScript via Node type stripping
-npm run typecheck  # includes tests
-npm run build      # tsc → dist + generated dist/theme.css
-npm run render:example
-npm run site:build # build dist + copy assets into site/ for Pages
-npm run site:serve # serve site/ at http://localhost:8000
+npm run build       # compile + generate theme.css
+npm run typecheck
+npm test
+npm run site:build  # build dist + copy examples into site/
+npm run site:serve   # serve site/ at http://localhost:8000
 ```
 
-Project layout:
+Source layout:
 
+```text
+src/ast.ts          public AST and layout types
+src/parser.ts       lexer + strict parser
+src/validate.ts     semantic checks and diagnostics
+src/layout.ts       layered DAG layout and cable routing
+src/render.ts       SVG compiler
+src/theme.ts        palette + embedded CSS
+src/cli.ts          CLI, --check, --json, --verify-src
+test/               parser, validation, layout and rendering
+examples/           working sources + generated SVGs
+site/               live sample, playground, docs and agent skill
 ```
-src/renderer.ts   parser, layout, SVG compiler, theme
-src/index.ts      public exports
-src/cli.ts        CLI (render, stdin, watch)
-test/             parser, layout invariants, SVG, options
-examples/         canonical diagram + generated SVG
-site/             static sample, playground and documentation (GitHub Pages)
-scripts/          build-time CSS generation
-```
 
-## Next steps
+## Limits
 
-The renderer is the stable core. Natural extensions, in rough order of value:
+- Shared providers use one node; `fresh` duplicates the immediate provider.
+- Graphs must be acyclic. Cut callback/event loops with an unbound need.
+- Text width is a monospace heuristic; CJK or emoji-heavy labels can overflow.
+- Dependency sockets are on the top edge. Candidate side notches are the only
+  side sockets.
+- `--verify-src` checks that paths exist, not that the code matches the claim.
+- The model describes wiring and ownership. It is a poor fit for dataflow, actor
+  topologies, UI trees and ECS world state.
 
-1. **DAG edges for shared singletons** instead of duplicated blocks.
-2. **Side notches / vertical module columns** for `ImagePreview`-style internal
-   components.
-3. **Framework scanners** (NestJS / tsyringe / Inversify / TS decorators) that
-   emit the DSL from a real codebase.
-4. **Agent skill wrapper** so the DSL contract, render, and validation loop are
-   one command in any repo.
+## License
+
+MIT.

@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 778" width="790" height="778" class="di-viz" data-theme="auto" role="img" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace">
+  <title>Api architecture diagram</title>
+  <style>:where(.di-viz) {
+  --di-canvas-bg: #0f0f0c;
+  --di-surface: #191914;
+  --di-stroke-root: #f1602f;
+  --di-stroke-component: #6f9fce;
+  --di-stroke-boundary: #d7a24a;
+  --di-stroke-value: #2dd4bf;
+  --di-wire: #5b574c;
+  --di-fg: #ece7da;
+  --di-muted: #918b7d;
+  --di-tag: #b0aa9b;
+  --di-module-bg: #22221c;
+  --di-module-border: #454338;
+  --di-module-fg: #d2ccbe;
+  --di-pill-bg: #345b78;
+  --di-pill-text: #edf2f0;
+  --di-pill-unbound: #b28a42;
+  --di-pill-unbound-bg: #211d13;
+  --di-pill-unbound-text: #e6c88e;
+  --di-font: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  display: block;
+}
+:where(.di-viz:not([data-responsive="true"])) {
+  max-width: 100%;
+  height: auto;
+}
+@media (prefers-color-scheme: light) {
+  :where(.di-viz[data-theme="auto"]) {
+    --di-canvas-bg: #f2ede0;
+    --di-surface: #fffdf7;
+    --di-stroke-root: #c2410c;
+    --di-stroke-component: #2b5e98;
+    --di-stroke-boundary: #9a6b12;
+    --di-stroke-value: #0f766e;
+    --di-wire: #9a9180;
+    --di-fg: #17150f;
+    --di-muted: #6f6a5d;
+    --di-tag: #5f5a4e;
+    --di-module-bg: #f1ede1;
+    --di-module-border: #c9c3b2;
+    --di-module-fg: #343128;
+    --di-pill-bg: #285c7a;
+    --di-pill-text: #f7fbfc;
+    --di-pill-unbound: #8a6a1f;
+    --di-pill-unbound-bg: #f6efd9;
+    --di-pill-unbound-text: #6d520f;
+  }
+}
+:where(.di-viz[data-theme="light"]) {
+  --di-canvas-bg: #f2ede0;
+  --di-surface: #fffdf7;
+  --di-stroke-root: #c2410c;
+  --di-stroke-component: #2b5e98;
+  --di-stroke-boundary: #9a6b12;
+  --di-stroke-value: #0f766e;
+  --di-wire: #9a9180;
+  --di-fg: #17150f;
+  --di-muted: #6f6a5d;
+  --di-tag: #5f5a4e;
+  --di-module-bg: #f1ede1;
+  --di-module-border: #c9c3b2;
+  --di-module-fg: #343128;
+  --di-pill-bg: #285c7a;
+  --di-pill-text: #f7fbfc;
+  --di-pill-unbound: #8a6a1f;
+  --di-pill-unbound-bg: #f6efd9;
+  --di-pill-unbound-text: #6d520f;
+}
+:where(.di-viz[data-theme="dark"]) {
+  --di-canvas-bg: #0f0f0c;
+  --di-surface: #191914;
+  --di-stroke-root: #f1602f;
+  --di-stroke-component: #6f9fce;
+  --di-stroke-boundary: #d7a24a;
+  --di-stroke-value: #2dd4bf;
+  --di-wire: #5b574c;
+  --di-fg: #ece7da;
+  --di-muted: #918b7d;
+  --di-tag: #b0aa9b;
+  --di-module-bg: #22221c;
+  --di-module-border: #454338;
+  --di-module-fg: #d2ccbe;
+  --di-pill-bg: #345b78;
+  --di-pill-text: #edf2f0;
+  --di-pill-unbound: #b28a42;
+  --di-pill-unbound-bg: #211d13;
+  --di-pill-unbound-text: #e6c88e;
+}
+:where(.di-viz) .di-canvas {
+  fill: var(--di-canvas-bg);
+}
+:where(.di-viz) .di-body {
+  fill: var(--di-surface);
+}
+:where(.di-viz) .di-role-root .di-body {
+  stroke: var(--di-stroke-root);
+}
+:where(.di-viz) .di-role-component .di-body {
+  stroke: var(--di-stroke-component);
+}
+:where(.di-viz) .di-role-boundary .di-body {
+  stroke: var(--di-stroke-boundary);
+}
+:where(.di-viz) .di-role-value .di-body {
+  stroke: var(--di-stroke-value);
+}
+:where(.di-viz) .di-edge {
+  fill: none;
+  stroke: var(--di-wire);
+  stroke-width: 1.5;
+  stroke-linecap: square;
+  stroke-linejoin: round;
+}
+:where(.di-viz) .di-pill {
+  fill: var(--di-pill-bg);
+}
+:where(.di-viz) .di-pill-unbound {
+  fill: var(--di-pill-unbound-bg);
+  stroke: var(--di-pill-unbound);
+}
+:where(.di-viz) .di-pill-fresh {
+  fill: var(--di-surface);
+  stroke: var(--di-stroke-value);
+  stroke-dasharray: 2 2;
+}
+:where(.di-viz) .di-pill-label {
+  fill: var(--di-pill-text);
+}
+:where(.di-viz) .di-socket-unbound .di-pill-label {
+  fill: var(--di-pill-unbound-text);
+}
+:where(.di-viz) .di-socket-fresh .di-pill-label {
+  fill: var(--di-stroke-value);
+}
+:where(.di-viz) .di-title {
+  fill: var(--di-fg);
+}
+:where(.di-viz) .di-subtitle {
+  fill: var(--di-muted);
+}
+:where(.di-viz) .di-tags {
+  fill: var(--di-tag);
+}
+:where(.di-viz) .di-module rect {
+  fill: var(--di-module-bg);
+  stroke: var(--di-module-border);
+}
+:where(.di-viz) .di-module text {
+  fill: var(--di-module-fg);
+}
+:where(.di-viz) .di-candidate-body {
+  fill: var(--di-module-bg);
+  stroke: var(--di-module-border);
+}
+:where(.di-viz) .di-candidate-pill {
+  fill: var(--di-surface);
+  stroke: var(--di-module-border);
+}
+:where(.di-viz) .di-candidate text {
+  fill: var(--di-module-fg);
+}
+:where(.di-viz) text {
+  font-family: var(--di-font);
+}</style>
+  <rect class="di-canvas" x="0" y="0" width="790" height="778" fill="#0f0f0c" />
+  <path class="di-edge" d="M 188 538 L 188 563 L 334 563 L 334 620" fill="none" stroke="#5b574c" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"><title>Orders</title></path>
+  <path class="di-edge" d="M 541 538 L 541 563 L 456 563 L 456 620" fill="none" stroke="#5b574c" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"><title>Health</title></path>
+  <path class="di-edge" d="M 249.1 336 L 249.1 361 L 127 361 L 127 418" fill="none" stroke="#5b574c" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"><title>Db</title></path>
+  <path class="di-edge" d="M 474.4 336 L 474.4 361 L 249 361 L 249 418" fill="none" stroke="#5b574c" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"><title>Logger</title></path>
+  <path class="di-edge" d="M 279.1 336 L 279.1 361 L 419 361 L 419 418" fill="none" stroke="#5b574c" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"><title>Db</title></path>
+  <path class="di-edge" d="M 504.4 336 L 504.4 361 L 541 361 L 541 418" fill="none" stroke="#5b574c" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"><title>Logger</title></path>
+  <path class="di-edge" d="M 395 134 L 395 159 L 264.1 159 L 264.1 216" fill="none" stroke="#5b574c" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"><title>Config</title></path>
+  <g class="di-block di-role-root" data-block-id="Api" data-key="Api" data-layer="0"><title>Api — application</title><path class="di-body" d="M 263 610 Q 263 602 271 602 L 279 602 Q 287 602 287 610 L 287 642 Q 287 650 295 650 L 373 650 Q 381 650 381 642 L 381 610 Q 381 602 389 602 L 401 602 Q 409 602 409 610 L 409 642 Q 409 650 417 650 L 495 650 Q 503 650 503 642 L 503 610 Q 503 602 511 602 L 519 602 Q 527 602 527 610 L 527 714 Q 527 722 519 722 L 271 722 Q 263 722 263 714 Z" fill="#191914" stroke="#f1602f" stroke-width="3.2" stroke-linejoin="round" /><g class="di-socket di-socket-bound"><title>Orders ← OrdersLive</title><rect class="di-pill" x="295" y="622" width="78" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="334" y="637" text-anchor="middle" fill="#edf2f0" font-size="11.5">Orders</text></g><g class="di-socket di-socket-bound"><title>Health ← HealthLive</title><rect class="di-pill" x="417" y="622" width="78" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="456" y="637" text-anchor="middle" fill="#edf2f0" font-size="11.5">Health</text></g><text class="di-title" x="279" y="708" text-anchor="start" fill="#ece7da" font-size="15" font-weight="600">Api</text><text class="di-subtitle" x="279" y="691" text-anchor="start" fill="#918b7d" font-size="11.5">application</text></g>
+  <g class="di-block di-role-component" data-block-id="OrdersLive" data-key="OrdersLive" data-layer="1"><title>OrdersLive — order service</title><path class="di-body" d="M 56 408 Q 56 400 64 400 L 72 400 Q 80 400 80 408 L 80 440 Q 80 448 88 448 L 166 448 Q 174 448 174 440 L 174 408 Q 174 400 182 400 L 194 400 Q 202 400 202 408 L 202 440 Q 202 448 210 448 L 288 448 Q 296 448 296 440 L 296 408 Q 296 400 304 400 L 312 400 Q 320 400 320 408 L 320 516 Q 320 524 312 524 L 209 524 Q 202 524 202 531 L 202 531 Q 202 538 195 538 L 181 538 Q 174 538 174 531 L 174 531 Q 174 524 167 524 L 64 524 Q 56 524 56 516 Z" fill="#191914" stroke="#6f9fce" stroke-width="3.2" stroke-linejoin="round" /><g class="di-socket di-socket-bound"><title>Db ← DbLive</title><rect class="di-pill" x="88" y="420" width="78" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="127" y="435" text-anchor="middle" fill="#edf2f0" font-size="11.5">Db</text></g><g class="di-socket di-socket-bound"><title>Logger ← LoggerLive</title><rect class="di-pill" x="210" y="420" width="78" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="249" y="435" text-anchor="middle" fill="#edf2f0" font-size="11.5">Logger</text></g><text class="di-title" x="72" y="510" text-anchor="start" fill="#ece7da" font-size="15" font-weight="600">OrdersLive</text><text class="di-subtitle" x="72" y="493" text-anchor="start" fill="#918b7d" font-size="11.5">order service</text></g>
+  <g class="di-block di-role-component" data-block-id="HealthLive" data-key="HealthLive" data-layer="1"><title>HealthLive — health service</title><path class="di-body" d="M 348 408 Q 348 400 356 400 L 364 400 Q 372 400 372 408 L 372 440 Q 372 448 380 448 L 458 448 Q 466 448 466 440 L 466 408 Q 466 400 474 400 L 486 400 Q 494 400 494 408 L 494 440 Q 494 448 502 448 L 580 448 Q 588 448 588 440 L 588 408 Q 588 400 596 400 L 608 400 Q 616 400 616 408 L 616 440 Q 616 448 624 448 L 702 448 Q 710 448 710 440 L 710 408 Q 710 400 718 400 L 726 400 Q 734 400 734 408 L 734 516 Q 734 524 726 524 L 562 524 Q 555 524 555 531 L 555 531 Q 555 538 548 538 L 534 538 Q 527 538 527 531 L 527 531 Q 527 524 520 524 L 356 524 Q 348 524 348 516 Z" fill="#191914" stroke="#6f9fce" stroke-width="3.2" stroke-linejoin="round" /><g class="di-socket di-socket-bound"><title>Db ← DbLive</title><rect class="di-pill" x="380" y="420" width="78" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="419" y="435" text-anchor="middle" fill="#edf2f0" font-size="11.5">Db</text></g><g class="di-socket di-socket-bound"><title>Logger ← LoggerLive</title><rect class="di-pill" x="502" y="420" width="78" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="541" y="435" text-anchor="middle" fill="#edf2f0" font-size="11.5">Logger</text></g><g class="di-socket di-socket-unbound"><title>Clock (unbound)</title><rect class="di-pill di-pill-unbound" x="624" y="420" width="78" height="22" rx="11" fill="#211d13" stroke="#b28a42" stroke-width="1.5" stroke-dasharray="4 3" /><text class="di-pill-label" x="663" y="435" text-anchor="middle" fill="#e6c88e" font-size="11.5">Clock</text></g><text class="di-title" x="364" y="510" text-anchor="start" fill="#ece7da" font-size="15" font-weight="600">HealthLive</text><text class="di-subtitle" x="364" y="493" text-anchor="start" fill="#918b7d" font-size="11.5">health service</text></g>
+  <g class="di-block di-role-boundary" data-block-id="DbLive" data-key="DbLive" data-layer="2"><title>DbLive — postgres — tags: closer</title><path class="di-body" d="M 183.7 206 Q 183.7 198 191.7 198 L 209.1 198 Q 217.1 198 217.1 206 L 217.1 238 Q 217.1 246 225.1 246 L 303.1 246 Q 311.1 246 311.1 238 L 311.1 206 Q 311.1 198 319.1 198 L 336.5 198 Q 344.5 198 344.5 206 L 344.5 314 Q 344.5 322 336.5 322 L 292.1 322 Q 285.1 322 285.1 329 L 285.1 329 Q 285.1 336 278.1 336 L 250.1 336 Q 243.1 336 243.1 329 L 243.1 329 Q 243.1 322 236.1 322 L 191.7 322 Q 183.7 322 183.7 314 Z" fill="#191914" stroke="#d7a24a" stroke-width="3.2" stroke-linejoin="round" /><g class="di-socket di-socket-bound"><title>Config ← AppConfig</title><rect class="di-pill" x="225.1" y="218" width="78" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="264.1" y="233" text-anchor="middle" fill="#edf2f0" font-size="11.5">Config</text></g><text class="di-title" x="199.7" y="308" text-anchor="start" fill="#ece7da" font-size="15" font-weight="600">DbLive</text><text class="di-subtitle" x="199.7" y="291" text-anchor="start" fill="#918b7d" font-size="11.5">postgres</text><text class="di-tags" x="328.5" y="308" text-anchor="end" fill="#b0aa9b" font-size="8.5">closer</text></g>
+  <g class="di-block di-role-boundary" data-block-id="LoggerLive" data-key="LoggerLive" data-layer="2"><title>LoggerLive — structured logs — tags: singleton</title><path class="di-body" d="M 372.5 266 Q 372.5 258 380.5 258 L 598.3 258 Q 606.3 258 606.3 266 L 606.3 314 Q 606.3 322 598.3 322 L 517.4 322 Q 510.4 322 510.4 329 L 510.4 329 Q 510.4 336 503.4 336 L 475.4 336 Q 468.4 336 468.4 329 L 468.4 329 Q 468.4 322 461.4 322 L 380.5 322 Q 372.5 322 372.5 314 Z" fill="#191914" stroke="#d7a24a" stroke-width="3.2" stroke-linejoin="round" /><text class="di-title" x="489.4" y="289" text-anchor="middle" fill="#ece7da" font-size="13" font-weight="600">LoggerLive</text><text class="di-subtitle" x="489.4" y="305" text-anchor="middle" fill="#918b7d" font-size="10.5">structured logs</text><text class="di-tags" x="594.3" y="315" text-anchor="end" fill="#b0aa9b" font-size="8">singleton</text></g>
+  <g class="di-block di-role-value" data-block-id="AppConfig" data-key="AppConfig" data-layer="3"><title>AppConfig — config — tags: config</title><path class="di-body" d="M 292.2 64 Q 292.2 56 300.2 56 L 489.8 56 Q 497.8 56 497.8 64 L 497.8 112 Q 497.8 120 489.8 120 L 416 120 Q 409 120 409 127 L 409 127 Q 409 134 402 134 L 388 134 Q 381 134 381 127 L 381 127 Q 381 120 374 120 L 300.2 120 Q 292.2 120 292.2 112 Z" fill="#191914" stroke="#2dd4bf" stroke-width="3.2" stroke-linejoin="round" /><text class="di-title" x="395" y="87" text-anchor="middle" fill="#ece7da" font-size="13" font-weight="600">AppConfig</text><text class="di-subtitle" x="395" y="103" text-anchor="middle" fill="#918b7d" font-size="10.5">config</text><text class="di-tags" x="485.8" y="113" text-anchor="end" fill="#b0aa9b" font-size="8">config</text></g>
+</svg>

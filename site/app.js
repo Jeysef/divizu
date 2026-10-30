@@ -7,26 +7,27 @@ import {
 
 const EXAMPLES = {
   quickstart: "examples/quickstart.di",
+  shared: "examples/shared.di",
   checkout: "examples/checkout.di",
   candidates: "examples/candidates.di",
   large: "examples/large.di",
 };
 
-const FALLBACK_DSL = `CheckoutApi "DI container (root)" {
-  role: root
-  socket ShippingPort
-  socket OrderUseCase <- OrderService
-  socket ReportPort
+const FALLBACK_DSL = `root CheckoutApi "DI container" {
+  needs ShippingPort
+  needs OrderUseCase <- OrderService
+  needs ReportPort
 }
 
-OrderService "composite" {
-  role: composite
+component OrderService "application service" {
+  provides: OrderUseCase
   modules: OrderValidator, PricingEngine, OrderMapper
-  socket PaymentPort <- StripePayment
+  needs PaymentPort <- StripePayment
 }
 
-StripePayment "adapter" {
-  role: adapter
+boundary StripePayment "payments" {
+  provides: PaymentPort
+  tag: adapter
 }
 `;
 

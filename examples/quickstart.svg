@@ -1,16 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 887 468" width="887" height="468" class="di-viz" data-theme="auto" role="img" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace">
-  <title>CheckoutApi dependency injection diagram</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 816 656" width="816" height="656" class="di-viz" data-theme="auto" role="img" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace">
+  <title>CheckoutApi architecture diagram</title>
   <style>:where(.di-viz) {
   --di-canvas-bg: #0f0f0c;
   --di-surface: #191914;
-  --di-stroke-container: #f1602f;
-  --di-stroke-adapter: #d7a24a;
-  --di-stroke-service: #6f9fce;
-  --di-stroke-port: #a9c46a;
-  --di-stroke-layer: #a78bfa;
-  --di-stroke-context: #2dd4bf;
+  --di-stroke-root: #f1602f;
+  --di-stroke-component: #6f9fce;
+  --di-stroke-boundary: #d7a24a;
+  --di-stroke-value: #2dd4bf;
+  --di-wire: #5b574c;
   --di-fg: #ece7da;
   --di-muted: #918b7d;
+  --di-tag: #b0aa9b;
   --di-module-bg: #22221c;
   --di-module-border: #454338;
   --di-module-fg: #d2ccbe;
@@ -30,14 +30,14 @@
   :where(.di-viz[data-theme="auto"]) {
     --di-canvas-bg: #f2ede0;
     --di-surface: #fffdf7;
-    --di-stroke-container: #c2410c;
-    --di-stroke-adapter: #9a6b12;
-    --di-stroke-service: #2b5e98;
-    --di-stroke-port: #4f6f13;
-    --di-stroke-layer: #7c3aed;
-    --di-stroke-context: #0f766e;
+    --di-stroke-root: #c2410c;
+    --di-stroke-component: #2b5e98;
+    --di-stroke-boundary: #9a6b12;
+    --di-stroke-value: #0f766e;
+    --di-wire: #9a9180;
     --di-fg: #17150f;
     --di-muted: #6f6a5d;
+    --di-tag: #5f5a4e;
     --di-module-bg: #f1ede1;
     --di-module-border: #c9c3b2;
     --di-module-fg: #343128;
@@ -51,14 +51,14 @@
 :where(.di-viz[data-theme="light"]) {
   --di-canvas-bg: #f2ede0;
   --di-surface: #fffdf7;
-  --di-stroke-container: #c2410c;
-  --di-stroke-adapter: #9a6b12;
-  --di-stroke-service: #2b5e98;
-  --di-stroke-port: #4f6f13;
-  --di-stroke-layer: #7c3aed;
-  --di-stroke-context: #0f766e;
+  --di-stroke-root: #c2410c;
+  --di-stroke-component: #2b5e98;
+  --di-stroke-boundary: #9a6b12;
+  --di-stroke-value: #0f766e;
+  --di-wire: #9a9180;
   --di-fg: #17150f;
   --di-muted: #6f6a5d;
+  --di-tag: #5f5a4e;
   --di-module-bg: #f1ede1;
   --di-module-border: #c9c3b2;
   --di-module-fg: #343128;
@@ -71,14 +71,14 @@
 :where(.di-viz[data-theme="dark"]) {
   --di-canvas-bg: #0f0f0c;
   --di-surface: #191914;
-  --di-stroke-container: #f1602f;
-  --di-stroke-adapter: #d7a24a;
-  --di-stroke-service: #6f9fce;
-  --di-stroke-port: #a9c46a;
-  --di-stroke-layer: #a78bfa;
-  --di-stroke-context: #2dd4bf;
+  --di-stroke-root: #f1602f;
+  --di-stroke-component: #6f9fce;
+  --di-stroke-boundary: #d7a24a;
+  --di-stroke-value: #2dd4bf;
+  --di-wire: #5b574c;
   --di-fg: #ece7da;
   --di-muted: #918b7d;
+  --di-tag: #b0aa9b;
   --di-module-bg: #22221c;
   --di-module-border: #454338;
   --di-module-fg: #d2ccbe;
@@ -94,24 +94,24 @@
 :where(.di-viz) .di-body {
   fill: var(--di-surface);
 }
-:where(.di-viz) .di-role-adapter .di-body {
-  stroke: var(--di-stroke-adapter);
-}
 :where(.di-viz) .di-role-root .di-body {
-  stroke: var(--di-stroke-container);
+  stroke: var(--di-stroke-root);
 }
-:where(.di-viz) .di-role-composite .di-body,
-:where(.di-viz) .di-role-service .di-body {
-  stroke: var(--di-stroke-service);
+:where(.di-viz) .di-role-component .di-body {
+  stroke: var(--di-stroke-component);
 }
-:where(.di-viz) .di-role-port .di-body {
-  stroke: var(--di-stroke-port);
+:where(.di-viz) .di-role-boundary .di-body {
+  stroke: var(--di-stroke-boundary);
 }
-:where(.di-viz) .di-role-layer .di-body {
-  stroke: var(--di-stroke-layer);
+:where(.di-viz) .di-role-value .di-body {
+  stroke: var(--di-stroke-value);
 }
-:where(.di-viz) .di-role-context .di-body {
-  stroke: var(--di-stroke-context);
+:where(.di-viz) .di-edge {
+  fill: none;
+  stroke: var(--di-wire);
+  stroke-width: 1.5;
+  stroke-linecap: square;
+  stroke-linejoin: round;
 }
 :where(.di-viz) .di-pill {
   fill: var(--di-pill-bg);
@@ -120,17 +120,28 @@
   fill: var(--di-pill-unbound-bg);
   stroke: var(--di-pill-unbound);
 }
+:where(.di-viz) .di-pill-fresh {
+  fill: var(--di-surface);
+  stroke: var(--di-stroke-value);
+  stroke-dasharray: 2 2;
+}
 :where(.di-viz) .di-pill-label {
   fill: var(--di-pill-text);
 }
 :where(.di-viz) .di-socket-unbound .di-pill-label {
   fill: var(--di-pill-unbound-text);
 }
+:where(.di-viz) .di-socket-fresh .di-pill-label {
+  fill: var(--di-stroke-value);
+}
 :where(.di-viz) .di-title {
   fill: var(--di-fg);
 }
 :where(.di-viz) .di-subtitle {
   fill: var(--di-muted);
+}
+:where(.di-viz) .di-tags {
+  fill: var(--di-tag);
 }
 :where(.di-viz) .di-module rect {
   fill: var(--di-module-bg);
@@ -139,13 +150,28 @@
 :where(.di-viz) .di-module text {
   fill: var(--di-module-fg);
 }
+:where(.di-viz) .di-candidate-body {
+  fill: var(--di-module-bg);
+  stroke: var(--di-module-border);
+}
+:where(.di-viz) .di-candidate-pill {
+  fill: var(--di-surface);
+  stroke: var(--di-module-border);
+}
+:where(.di-viz) .di-candidate text {
+  fill: var(--di-module-fg);
+}
 :where(.di-viz) text {
-  font-family: var(--di-font, ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace);
+  font-family: var(--di-font);
 }</style>
-  <rect class="di-canvas" x="0" y="0" width="887" height="468" fill="#0f0f0c" />
-  <g class="di-block di-role-root" data-block-id="CheckoutApi" data-key="CheckoutApi"><path class="di-body" d="M 32 326 Q 32 316 42 316 L 114.8 316 Q 124.8 316 124.8 326 L 124.8 354 Q 124.8 364 134.8 364 L 210.8 364 Q 220.8 364 220.8 354 L 220.8 326 Q 220.8 316 230.8 316 L 283.6 316 Q 293.6 316 293.6 326 L 293.6 354 Q 293.6 364 303.6 364 L 397.8 364 Q 407.8 364 407.8 354 L 407.8 326 Q 407.8 316 417.8 316 L 478.5 316 Q 488.5 316 488.5 326 L 488.5 354 Q 488.5 364 498.5 364 L 577.1 364 Q 587.1 364 587.1 354 L 587.1 326 Q 587.1 316 597.1 316 L 683 316 Q 693 316 693 326 L 693 354 Q 693 364 703 364 L 779 364 Q 789 364 789 354 L 789 326 Q 789 316 799 316 L 845 316 Q 855 316 855 326 L 855 426 Q 855 436 845 436 L 42 436 Q 32 436 32 426 Z" fill="#191914" stroke="#f1602f" stroke-width="3.5" stroke-linejoin="round" /><g class="di-socket di-socket-bound"><title>Orders ← OrderService</title><rect class="di-pill" x="132.8" y="336" width="80" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="172.8" y="351" text-anchor="middle" fill="#edf2f0" font-size="11.5">Orders</text></g><g class="di-socket di-socket-unbound"><title>Telemetry (unbound)</title><rect class="di-pill di-pill-unbound" x="301.6" y="336" width="98.2" height="22" rx="11" fill="#211d13" stroke="#b28a42" stroke-width="1.5" stroke-dasharray="4 3" /><text class="di-pill-label" x="350.7" y="351" text-anchor="middle" fill="#e6c88e" font-size="11.5">Telemetry</text></g><g class="di-socket di-socket-bound"><title>Catalog ← PostgresCatalog</title><rect class="di-pill" x="496.5" y="336" width="82.6" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="537.8" y="351" text-anchor="middle" fill="#edf2f0" font-size="11.5">Catalog</text></g><g class="di-socket di-socket-bound"><title>Config ← AppConfig</title><rect class="di-pill" x="701" y="336" width="80" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="741" y="351" text-anchor="middle" fill="#edf2f0" font-size="11.5">Config</text></g><text class="di-title" x="48" y="422" text-anchor="start" fill="#ece7da" font-size="15" font-weight="600">CheckoutApi</text><text class="di-subtitle" x="48" y="405" text-anchor="start" fill="#918b7d" font-size="11.5">root</text></g>
-  <g class="di-block di-role-composite" data-block-id="OrderService" data-key="CheckoutApi/0:OrderService"><path class="di-body" d="M 72 116 Q 72 106 82 106 L 109.6 106 Q 119.6 106 119.6 116 L 119.6 144 Q 119.6 154 129.6 154 L 216 154 Q 226 154 226 144 L 226 116 Q 226 106 236 106 L 263.6 106 Q 273.6 106 273.6 116 L 273.6 296 Q 273.6 306 263.6 306 L 220.8 306 Q 210.8 306 210.8 316 L 210.8 320 Q 210.8 330 200.8 330 L 144.8 330 Q 134.8 330 134.8 320 L 134.8 316 Q 134.8 306 124.8 306 L 82 306 Q 72 306 72 296 Z" fill="#191914" stroke="#6f9fce" stroke-width="3.5" stroke-linejoin="round" /><g class="di-socket di-socket-bound"><title>Payments ← StripeAdapter</title><rect class="di-pill" x="127.6" y="126" width="90.4" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="172.8" y="141" text-anchor="middle" fill="#edf2f0" font-size="11.5">Payments</text></g><text class="di-title" x="88" y="292" text-anchor="start" fill="#ece7da" font-size="15" font-weight="600">OrderService</text><text class="di-subtitle" x="88" y="275" text-anchor="start" fill="#918b7d" font-size="11.5">composite</text><g class="di-module"><rect x="90" y="172" width="165.6" height="28" rx="5" fill="#22221c" stroke="#454338" stroke-width="1" /><text x="102" y="190.5" text-anchor="start" fill="#d2ccbe" font-size="12">ValidateCart</text></g><g class="di-module"><rect x="90" y="208" width="165.6" height="28" rx="5" fill="#22221c" stroke="#454338" stroke-width="1" /><text x="102" y="226.5" text-anchor="start" fill="#d2ccbe" font-size="12">PriceOrder</text></g></g>
-  <g class="di-block di-role-adapter" data-block-id="StripeAdapter" data-key="CheckoutApi/0:OrderService/0:StripeAdapter"><path class="di-body" d="M 80.4 42 Q 80.4 32 90.4 32 L 255.2 32 Q 265.2 32 265.2 42 L 265.2 86 Q 265.2 96 255.2 96 L 226 96 Q 216 96 216 106 L 216 110 Q 216 120 206 120 L 139.6 120 Q 129.6 120 129.6 110 L 129.6 106 Q 129.6 96 119.6 96 L 90.4 96 Q 80.4 96 80.4 86 Z" fill="#191914" stroke="#d7a24a" stroke-width="3.5" stroke-linejoin="round" /><text class="di-title" x="172.8" y="69" text-anchor="middle" fill="#ece7da" font-size="13" font-weight="600">StripeAdapter</text></g>
-  <g class="di-block di-role-adapter" data-block-id="PostgresCatalog" data-key="CheckoutApi/2:PostgresCatalog"><path class="di-body" d="M 435.8 252 Q 435.8 242 445.8 242 L 629.8 242 Q 639.8 242 639.8 252 L 639.8 296 Q 639.8 306 629.8 306 L 587.1 306 Q 577.1 306 577.1 316 L 577.1 320 Q 577.1 330 567.1 330 L 508.5 330 Q 498.5 330 498.5 320 L 498.5 316 Q 498.5 306 488.5 306 L 445.8 306 Q 435.8 306 435.8 296 Z" fill="#191914" stroke="#d7a24a" stroke-width="3.5" stroke-linejoin="round" /><text class="di-title" x="537.8" y="279" text-anchor="middle" fill="#ece7da" font-size="13" font-weight="600">PostgresCatalog</text></g>
-  <g class="di-block di-role-context" data-block-id="AppConfig" data-key="CheckoutApi/3:AppConfig"><path class="di-body" d="M 667.8 252 Q 667.8 242 677.8 242 L 804.2 242 Q 814.2 242 814.2 252 L 814.2 296 Q 814.2 306 804.2 306 L 789 306 Q 779 306 779 316 L 779 320 Q 779 330 769 330 L 713 330 Q 703 330 703 320 L 703 316 Q 703 306 693 306 L 677.8 306 Q 667.8 306 667.8 296 Z" fill="#191914" stroke="#2dd4bf" stroke-width="3.5" stroke-linejoin="round" /><text class="di-title" x="741" y="279" text-anchor="middle" fill="#ece7da" font-size="13" font-weight="600">AppConfig</text></g>
+  <rect class="di-canvas" x="0" y="0" width="816" height="656" fill="#0f0f0c" />
+  <path class="di-edge" d="M 150.1 416 L 150.1 441 L 214.2 441 L 214.2 498" fill="none" stroke="#5b574c" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"><title>Orders</title></path>
+  <path class="di-edge" d="M 398.9 416 L 398.9 441 L 477.7 441 L 477.7 498" fill="none" stroke="#5b574c" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"><title>Catalog</title></path>
+  <path class="di-edge" d="M 656.4 416 L 656.4 441 L 601 441 L 601 498" fill="none" stroke="#5b574c" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"><title>Config</title></path>
+  <path class="di-edge" d="M 407.6 134 L 407.6 159 L 150.1 159 L 150.1 216" fill="none" stroke="#5b574c" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"><title>Payments</title></path>
+  <g class="di-block di-role-root" data-block-id="CheckoutApi" data-key="CheckoutApi" data-layer="0"><title>CheckoutApi — root</title><path class="di-body" d="M 143.2 488 Q 143.2 480 151.2 480 L 159.2 480 Q 167.2 480 167.2 488 L 167.2 520 Q 167.2 528 175.2 528 L 253.2 528 Q 261.2 528 261.2 520 L 261.2 488 Q 261.2 480 269.2 480 L 281.2 480 Q 289.2 480 289.2 488 L 289.2 520 Q 289.2 528 297.2 528 L 393.4 528 Q 401.4 528 401.4 520 L 401.4 488 Q 401.4 480 409.4 480 L 421.4 480 Q 429.4 480 429.4 488 L 429.4 520 Q 429.4 528 437.4 528 L 518 528 Q 526 528 526 520 L 526 488 Q 526 480 534 480 L 546 480 Q 554 480 554 488 L 554 520 Q 554 528 562 528 L 640 528 Q 648 528 648 520 L 648 488 Q 648 480 656 480 L 664 480 Q 672 480 672 488 L 672 592 Q 672 600 664 600 L 151.2 600 Q 143.2 600 143.2 592 Z" fill="#191914" stroke="#f1602f" stroke-width="3.2" stroke-linejoin="round" /><g class="di-socket di-socket-bound"><title>Orders ← OrderService</title><rect class="di-pill" x="175.2" y="500" width="78" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="214.2" y="515" text-anchor="middle" fill="#edf2f0" font-size="11.5">Orders</text></g><g class="di-socket di-socket-unbound"><title>Telemetry (unbound)</title><rect class="di-pill di-pill-unbound" x="297.2" y="500" width="96.2" height="22" rx="11" fill="#211d13" stroke="#b28a42" stroke-width="1.5" stroke-dasharray="4 3" /><text class="di-pill-label" x="345.3" y="515" text-anchor="middle" fill="#e6c88e" font-size="11.5">Telemetry</text></g><g class="di-socket di-socket-bound"><title>Catalog ← PostgresCatalog</title><rect class="di-pill" x="437.4" y="500" width="80.6" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="477.7" y="515" text-anchor="middle" fill="#edf2f0" font-size="11.5">Catalog</text></g><g class="di-socket di-socket-bound"><title>Config ← AppConfig</title><rect class="di-pill" x="562" y="500" width="78" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="601" y="515" text-anchor="middle" fill="#edf2f0" font-size="11.5">Config</text></g><text class="di-title" x="159.2" y="586" text-anchor="start" fill="#ece7da" font-size="15" font-weight="600">CheckoutApi</text><text class="di-subtitle" x="159.2" y="569" text-anchor="start" fill="#918b7d" font-size="11.5">root</text></g>
+  <g class="di-block di-role-component" data-block-id="OrderService" data-key="OrderService" data-layer="1"><title>OrderService — application service</title><path class="di-body" d="M 56 206 Q 56 198 64 198 L 89.9 198 Q 97.9 198 97.9 206 L 97.9 238 Q 97.9 246 105.9 246 L 194.3 246 Q 202.3 246 202.3 238 L 202.3 206 Q 202.3 198 210.3 198 L 236.2 198 Q 244.2 198 244.2 206 L 244.2 394 Q 244.2 402 236.2 402 L 171.1 402 Q 164.1 402 164.1 409 L 164.1 409 Q 164.1 416 157.1 416 L 143.1 416 Q 136.1 416 136.1 409 L 136.1 409 Q 136.1 402 129.1 402 L 64 402 Q 56 402 56 394 Z" fill="#191914" stroke="#6f9fce" stroke-width="3.2" stroke-linejoin="round" /><g class="di-socket di-socket-bound"><title>Payments ← StripeGateway</title><rect class="di-pill" x="105.9" y="218" width="88.4" height="22" rx="11" fill="#345b78" /><text class="di-pill-label" x="150.1" y="233" text-anchor="middle" fill="#edf2f0" font-size="11.5">Payments</text></g><text class="di-title" x="72" y="388" text-anchor="start" fill="#ece7da" font-size="15" font-weight="600">OrderService</text><text class="di-subtitle" x="72" y="371" text-anchor="start" fill="#918b7d" font-size="11.5">application service</text><g class="di-module"><rect x="74" y="264" width="152.2" height="28" rx="5" fill="#22221c" stroke="#454338" stroke-width="1" /><text x="86" y="282.5" text-anchor="start" fill="#d2ccbe" font-size="12">ValidateCart</text></g><g class="di-module"><rect x="74" y="300" width="152.2" height="28" rx="5" fill="#22221c" stroke="#454338" stroke-width="1" /><text x="86" y="318.5" text-anchor="start" fill="#d2ccbe" font-size="12">PriceOrder</text></g></g>
+  <g class="di-block di-role-boundary" data-block-id="StripeGateway" data-key="StripeGateway" data-layer="2"><title>StripeGateway — payments — tags: adapter</title><path class="di-body" d="M 282.5 64 Q 282.5 56 290.5 56 L 524.7 56 Q 532.7 56 532.7 64 L 532.7 112 Q 532.7 120 524.7 120 L 428.6 120 Q 421.6 120 421.6 127 L 421.6 127 Q 421.6 134 414.6 134 L 400.6 134 Q 393.6 134 393.6 127 L 393.6 127 Q 393.6 120 386.6 120 L 290.5 120 Q 282.5 120 282.5 112 Z" fill="#191914" stroke="#d7a24a" stroke-width="3.2" stroke-linejoin="round" /><text class="di-title" x="407.6" y="87" text-anchor="middle" fill="#ece7da" font-size="13" font-weight="600">StripeGateway</text><text class="di-subtitle" x="407.6" y="103" text-anchor="middle" fill="#918b7d" font-size="10.5">payments</text><text class="di-tags" x="520.7" y="113" text-anchor="end" fill="#b0aa9b" font-size="8">adapter</text></g>
+  <g class="di-block di-role-boundary" data-block-id="PostgresCatalog" data-key="PostgresCatalog" data-layer="1"><title>PostgresCatalog — catalog database — tags: adapter</title><path class="di-body" d="M 272.2 286 Q 272.2 278 280.2 278 L 517.6 278 Q 525.6 278 525.6 286 L 525.6 394 Q 525.6 402 517.6 402 L 419.9 402 Q 412.9 402 412.9 409 L 412.9 409 Q 412.9 416 405.9 416 L 391.9 416 Q 384.9 416 384.9 409 L 384.9 409 Q 384.9 402 377.9 402 L 280.2 402 Q 272.2 402 272.2 394 Z" fill="#191914" stroke="#d7a24a" stroke-width="3.2" stroke-linejoin="round" /><text class="di-title" x="288.2" y="388" text-anchor="start" fill="#ece7da" font-size="15" font-weight="600">PostgresCatalog</text><text class="di-subtitle" x="288.2" y="371" text-anchor="start" fill="#918b7d" font-size="11.5">catalog database</text><text class="di-tags" x="509.6" y="388" text-anchor="end" fill="#b0aa9b" font-size="8.5">adapter</text><g class="di-module"><rect x="290.2" y="296" width="217.4" height="28" rx="5" fill="#22221c" stroke="#454338" stroke-width="1" /><text x="302.2" y="314.5" text-anchor="start" fill="#d2ccbe" font-size="12">conn pool</text></g></g>
+  <g class="di-block di-role-value" data-block-id="AppConfig" data-key="AppConfig" data-layer="1"><title>AppConfig — context — tags: config</title><path class="di-body" d="M 553.6 346 Q 553.6 338 561.6 338 L 751.2 338 Q 759.2 338 759.2 346 L 759.2 394 Q 759.2 402 751.2 402 L 677.4 402 Q 670.4 402 670.4 409 L 670.4 409 Q 670.4 416 663.4 416 L 649.4 416 Q 642.4 416 642.4 409 L 642.4 409 Q 642.4 402 635.4 402 L 561.6 402 Q 553.6 402 553.6 394 Z" fill="#191914" stroke="#2dd4bf" stroke-width="3.2" stroke-linejoin="round" /><text class="di-title" x="656.4" y="369" text-anchor="middle" fill="#ece7da" font-size="13" font-weight="600">AppConfig</text><text class="di-subtitle" x="656.4" y="385" text-anchor="middle" fill="#918b7d" font-size="10.5">context</text><text class="di-tags" x="747.2" y="395" text-anchor="end" fill="#b0aa9b" font-size="8">config</text></g>
 </svg>

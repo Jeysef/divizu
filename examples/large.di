@@ -1,129 +1,167 @@
 // Atlas Commerce — a deliberately large system map.
-// 28 blocks, three roots, five bounded contexts. One file, no duplicated
-// subtrees. Split further by context if you need a closer read.
+// 28 blocks, three roots, one file. Shared providers are drawn once.
 //
-// Bottom-up: roots sit at the bottom, sockets open upward.
+// Read bottom-up: roots at the bottom, dependencies above. Split by context
+// when a plate stops being readable.
 
-StorefrontApi "customer web + mobile" {
-  role: root
-  socket Catalog <- CatalogService
-  socket Checkout <- CheckoutService
-  socket Search <- SearchService
-  socket Session
+root StorefrontApi "customer web + mobile" {
+  needs StorefrontCatalog <- CatalogService
+  needs Checkout <- CheckoutService
+  needs Search <- SearchService
+  needs Session
 }
 
-CatalogService "browse and pricing" {
-  role: composite
+component CatalogService "browse and pricing" {
+  provides: StorefrontCatalog
   modules: CatalogRepo, PricingRules
-  socket Media <- MediaService
+  needs Media <- MediaService
 }
 
-CheckoutService "cart to order" {
-  role: composite
+component CheckoutService "cart to order" {
+  provides: Checkout
   modules: CartValidator, TaxCalculator
-  socket Payments <- StripePayments
-  socket Inventory <- InventoryService
-  socket Orders <- OrderEvents
+  needs Payments <- StripePayments
+  needs Inventory <- InventoryService
+  needs OrderEventsKey <- OrderEvents
 }
 
-SearchService "query and ranking" {
-  role: composite
+component SearchService "query and ranking" {
+  provides: Search
   modules: QueryParser, Ranker
-  socket Index <- SearchIndex
+  needs SearchIndexKey <- SearchIndex
 }
 
-MediaService "image pipeline" {
-  role: composite
+component MediaService "image pipeline" {
+  provides: Media
   modules: ImagePipeline
-  socket Bucket <- ObjectStorage
+  needs MediaBucket <- ObjectStorage
 }
 
-InventoryService "stock reservations" {
-  role: composite
+component InventoryService "stock reservations" {
+  provides: Inventory
   modules: Reservations
-  socket DB <- InventoryDB
+  needs InventoryDb <- InventoryDB
 }
 
-StripePayments "payments" { role: adapter }
-SearchIndex "full-text index" { role: adapter }
-ObjectStorage "media bucket" { role: adapter }
-InventoryDB "postgres" { role: adapter }
-OrderEvents "order stream" { role: adapter }
-
-OperatorConsole "internal back office" {
-  role: root
-  socket Orders <- OrderAdmin
-  socket Catalog <- CatalogAdmin
-  socket Customers <- CustomerAdmin
-  socket Auth <- StaffIdentity
+boundary StripePayments "payments" {
+  provides: Payments
+  tag: adapter
 }
 
-OrderAdmin "support and refunds" {
-  role: composite
+boundary SearchIndex "full-text index" {
+  provides: SearchIndexKey
+  tag: adapter
+}
+
+boundary ObjectStorage "media bucket" {
+  provides: MediaBucket
+  tag: adapter
+}
+
+boundary InventoryDB "postgres" {
+  provides: InventoryDb
+  tag: adapter
+}
+
+boundary OrderEvents "order stream" {
+  provides: OrderEventsKey
+  tag: adapter
+}
+
+root OperatorConsole "internal back office" {
+  needs Orders <- OrderAdmin
+  needs AdminCatalog <- CatalogAdmin
+  needs Customers <- CustomerAdmin
+  needs Auth <- StaffIdentity
+}
+
+component OrderAdmin "support and refunds" {
+  provides: Orders
   modules: OrderSearch, RefundPolicy
-  socket Ledger <- LedgerService
+  needs Ledger <- LedgerService
 }
 
-CatalogAdmin "merchandising" {
-  role: composite
+component CatalogAdmin "merchandising" {
+  provides: AdminCatalog
   modules: DraftEditor, PublishGate
-  socket Media
+  needs Media
 }
 
-CustomerAdmin "accounts and GDPR" {
-  role: composite
+component CustomerAdmin "accounts and GDPR" {
+  provides: Customers
   modules: Segments, ErasureJobs
-  socket CRM <- CrmAdapter
+  needs CRM <- CrmAdapter
 }
 
-StaffIdentity "staff SSO" {
-  role: service
+component StaffIdentity "staff SSO" {
+  provides: Auth
   modules: Roles, AuditLog
-  socket Directory
+  needs Directory
 }
 
-LedgerService "double-entry ledger" {
-  role: service
+component LedgerService "double-entry ledger" {
+  provides: Ledger
   modules: LedgerEntries
-  socket DB <- LedgerDB
+  needs LedgerDb <- LedgerDB
 }
 
-CrmAdapter "salesforce" { role: adapter }
-LedgerDB "postgres" { role: adapter }
-
-AsyncWorkers "queue consumers" {
-  role: root
-  socket Projections <- OrderProjector
-  socket Media <- MediaWorker
-  socket Mail <- EmailWorker
-  socket Index <- IndexWorker
+boundary CrmAdapter "salesforce" {
+  provides: CRM
+  tag: adapter
 }
 
-OrderProjector "read models" {
-  role: composite
+boundary LedgerDB "postgres" {
+  provides: LedgerDb
+  tag: adapter
+}
+
+root AsyncWorkers "queue consumers" {
+  needs Projections <- OrderProjector
+  needs MediaWorker <- MediaWorker
+  needs Mail <- EmailWorker
+  needs WorkerIndex <- IndexWorker
+}
+
+component OrderProjector "read models" {
+  provides: Projections
   modules: Idempotency, Retries
-  socket Queue <- EventBus
+  needs Queue <- EventBus
 }
 
-MediaWorker "transcode + thumbs" {
-  role: composite
+component MediaWorker "transcode + thumbs" {
+  provides: MediaWorker
   modules: Transcode, Thumbnails
-  socket Bucket <- WorkerBucket
+  needs WorkerBucketKey <- WorkerBucket
 }
 
-EmailWorker "transactional mail" {
-  role: composite
+component EmailWorker "transactional mail" {
+  provides: Mail
   modules: Templates, RateLimiter
-  socket Provider <- Postmark
+  needs MailProvider <- Postmark
 }
 
-IndexWorker "index maintenance" {
-  role: composite
+component IndexWorker "index maintenance" {
+  provides: WorkerIndex
   modules: Batcher, Retry
-  socket Index <- WorkerIndex
+  needs WorkerIndexKey <- WorkerIndex
 }
 
-EventBus "kafka" { role: adapter }
-WorkerBucket "S3" { role: adapter }
-Postmark "email" { role: adapter }
-WorkerIndex "opensearch" { role: adapter }
+boundary EventBus "kafka" {
+  provides: Queue
+  tag: adapter
+}
+
+boundary WorkerBucket "S3" {
+  provides: WorkerBucketKey
+  tag: adapter
+}
+
+boundary Postmark "email" {
+  provides: MailProvider
+  tag: adapter
+}
+
+boundary WorkerIndex "opensearch" {
+  provides: WorkerIndexKey
+  tag: adapter
+}

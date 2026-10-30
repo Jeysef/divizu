@@ -1,8 +1,8 @@
 {
-  "name": "diviz",
+  "name": "divizu",
   "version": "0.1.0",
-  "private": true,
-  "description": "Deterministic, zero-runtime-dependency DSL-to-SVG renderer for hardware-slot dependency injection diagrams.",
+  "private": false,
+  "description": "Deterministic DSL-to-SVG architecture diagrams for coding agents, with shared dependency layers.",
   "type": "module",
   "engines": {
     "node": ">=18"
@@ -18,6 +18,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
+    "divizu": "./dist/cli.js",
     "diviz": "./dist/cli.js"
   },
   "files": [
@@ -26,22 +27,23 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json && node scripts/build-css.mjs",
+    "build": "rm -rf dist && tsc -p tsconfig.json && node scripts/build-css.mjs",
     "typecheck": "tsc -p tsconfig.test.json",
     "test": "node --test test/*.test.ts",
-    "render:example": "node src/cli.ts examples/checkout.di -o examples/checkout.svg",
+    "render:example": "node src/cli.ts examples/quickstart.di -o examples/quickstart.svg",
     "site:build": "npm run build && rm -rf site/dist site/examples && mkdir -p site/dist site/examples && cp -r dist/* site/dist/ && cp examples/*.di examples/*.svg site/examples/",
     "site:serve": "python3 -m http.server -d site 8000",
     "prepublishOnly": "npm run build && npm test"
   },
   "keywords": [
     "dependency-injection",
+    "architecture",
     "diagram",
     "svg",
-    "mermaid",
-    "d2",
     "dsl",
-    "architecture",
+    "agents",
+    "llm",
+    "codebase",
     "visualization"
   ],
   "devDependencies": {

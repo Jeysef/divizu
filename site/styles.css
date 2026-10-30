@@ -2051,23 +2051,15 @@ ol {
   background: #f1602f;
 }
 
-.swatch-service {
+.swatch-component {
   background: #6f9fce;
 }
 
-.swatch-adapter {
+.swatch-boundary {
   background: #d7a24a;
 }
 
-.swatch-port {
-  background: #a9c46a;
-}
-
-.swatch-layer {
-  background: #a78bfa;
-}
-
-.swatch-context {
+.swatch-value {
   background: #2dd4bf;
 }
 

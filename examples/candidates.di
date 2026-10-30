@@ -1,34 +1,42 @@
-// Reference hardware-slot metaphor: factories with vertical candidate cards.
-// Side sockets such as ImagePreview(ImageScaler) and AwsStorage(Encryption)
-// render as U-shaped notches with rotated pills.
+// Factories with alternative implementations. A candidate can require an
+// interface with Name(Requirement); that becomes a side notch, not a graph edge.
 
-UploadRequest "root" {
-  role: root
-  socket Scanner <- ThreatProtectScanner
-  socket ImageScaler <- SharpImageScaler
-  socket PreviewGenerator <- PreviewGeneratorFactory
-  socket Storage <- StorageFactory
+root UploadRequest "upload API" {
+  needs Scanner <- ThreatProtectScanner
+  needs ImageScaler <- SharpImageScaler
+  needs PreviewGenerator <- PreviewGeneratorFactory
+  needs Storage <- StorageFactory
 }
 
-ThreatProtectScanner { role: adapter }
+boundary ThreatProtectScanner "scanner" {
+  provides: Scanner
+  tag: adapter
+}
 
-SharpImageScaler { role: adapter }
+boundary SharpImageScaler "image scaler" {
+  provides: ImageScaler
+  tag: adapter
+}
 
-PreviewGeneratorFactory "factory" {
-  role: service
-  socket ImageScaler <- SharpImageScaler
+component PreviewGeneratorFactory "preview factory" {
+  provides: PreviewGenerator
+  needs ImageScaler <- SharpImageScaler
   candidates: DocumentPreview, ImagePreview(ImageScaler), VideoPreview
+  tag: factory
 }
 
-StorageFactory "factory" {
-  role: service
-  socket Encryption <- AESEncryption
+component StorageFactory "storage factory" {
+  provides: Storage
+  needs Encryption <- AESEncryption
   candidates: S3Storage, AwsStorage(Encryption), WebDavStorage
+  tag: factory
 }
 
-AESEncryption {
-  role: service
-  socket Key <- KeyService
+component AESEncryption "AES" {
+  provides: Encryption
+  needs Key <- KeyService
 }
 
-KeyService { role: adapter }
+component KeyService "key service" {
+  provides: Key
+}
