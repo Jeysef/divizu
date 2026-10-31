@@ -9,9 +9,11 @@ divizu is a small DSL → SVG compiler for architecture diagrams. It is designed
 for coding agents: read the repository, write a compact `.di` file, validate it,
 and give the user a drawing they can read at a glance.
 
-The drawing is a **layered graph**, not a tree. Roots sit at the bottom,
-dependencies above them, and shared providers are drawn once with a cable to
-each consumer.
+The default drawing is a **slot layout**: each provider sits directly above
+its socket and its plug tab descends into the notch. A **layers** layout is
+available for shared dependencies: roots sit at the bottom, providers above
+their consumers, and a shared provider is drawn once with a cable to each
+socket.
 
 ## Workflow
 
@@ -20,9 +22,11 @@ each consumer.
 2. Write `architecture.di`. Keep it to roughly **5–25 blocks**. Split a large
    system by bounded context instead of drawing the whole monorepo at once.
 3. Run `--check` before rendering. Fix the errors it reports.
-4. Render the SVG and/or return a playground link.
-5. Explain the drawing in a few sentences, starting from the root.
-6. Do not commit the `.di` or `.svg` files unless the user asks.
+4. Choose a layout: `slots` for the literal hardware view (default), or
+   `layers` when shared providers should be drawn once with cables.
+5. Render the SVG and/or return a playground link.
+6. Explain the drawing in a few sentences, starting from the root.
+7. Do not commit the `.di` or `.svg` files unless the user asks.
 
 ## Roles
 
@@ -96,8 +100,10 @@ Rules:
 - Comments (`#`, `//`) only start at a token boundary. `C#Parser` is a name.
 - Quote names with spaces or punctuation: `provides: "@app/Users"`.
 - `provides:` is optional. When present, `needs K <- P` is checked against it.
-- `fresh` draws a separate provider instance for that consumer. Omit it to
-  share one provider across all consumers.
+- In `layers`, `fresh` draws a separate provider instance for that consumer.
+  Omit it to share one provider across all consumers. In `slots`, every
+  provider is placed directly above a socket, so shared providers are
+  duplicated per consumer.
 - `modules:` are internal collaborators, not separate nodes.
 - `candidates:` are alternatives, not graph edges.
 - `src: "path:line"` is provenance. `--check --verify-src` checks the path.
@@ -107,9 +113,11 @@ Rules:
 ## Pick the right shape
 
 - Shared runtime dependency (logger, config, DB pool): one provider block, many
-  `needs` pointing at it. It is drawn once.
+  `needs` pointing at it. Use `--layout layers` to draw it once.
 - A genuinely fresh instance per consumer (request scope, prototype): use
-  `<- fresh Provider`.
+  `<- fresh Provider` with `--layout layers`.
+- Literal hardware view: leave the default `slots` layout on; shared providers
+  will be slotted per consumer.
 - External system not in the repo: leave the need unbound.
 - Several entry points: use several `root` blocks on one plate.
 
@@ -140,6 +148,7 @@ If the repository is available locally:
 npm run build
 node dist/cli.js architecture.di --check
 node dist/cli.js architecture.di -o architecture.svg
+node dist/cli.js architecture.di --layout layers -o architecture.svg
 ```
 
 `--check` returns machine-readable hints:
@@ -158,6 +167,7 @@ npm install
 npm run build
 node dist/cli.js ../architecture.di --check
 node dist/cli.js ../architecture.di -o ../architecture.svg
+node dist/cli.js ../architecture.di --layout layers -o ../architecture.svg
 ```
 
 ### Playground link (fastest delivery)
@@ -184,6 +194,6 @@ Reference:
 
 - Manual: https://jeysef.github.io/divizu/docs.html
 - Quickstart: https://jeysef.github.io/divizu/examples/quickstart.di
-- Shared layers: https://jeysef.github.io/divizu/examples/shared.di
+- Shared layers example (use --layout layers): https://jeysef.github.io/divizu/examples/shared.di
 - Large system map (28 blocks): https://jeysef.github.io/divizu/examples/large.di
 - llms.txt: https://jeysef.github.io/divizu/llms.txt

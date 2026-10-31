@@ -68,6 +68,7 @@ const zoomOut = document.querySelector("#zoom-out");
 const zoomIn = document.querySelector("#zoom-in");
 const zoomReset = document.querySelector("#zoom-reset");
 
+const layoutSelect = document.querySelector("#layout-mode");
 const radiusInput = document.querySelector("#corner-radius");
 const paddingInput = document.querySelector("#padding");
 const gapInput = document.querySelector("#socket-gap");
@@ -76,6 +77,7 @@ const paddingOut = document.querySelector("#padding-value");
 const gapOut = document.querySelector("#socket-gap-value");
 
 let theme = "dark";
+let layoutMode = "slots";
 let currentFile = "checkout";
 let currentSvg = "";
 let lastValidDsl = "";
@@ -187,6 +189,7 @@ function readNumber(input, fallback) {
 function currentOptions() {
   return {
     theme,
+    layout: layoutMode,
     padding: readNumber(paddingInput, DEFAULTS.padding),
     cornerRadius: readNumber(radiusInput, DEFAULTS.cornerRadius),
     socketGap: readNumber(gapInput, DEFAULTS.socketGap),
@@ -256,7 +259,7 @@ function renderNow({ updateHash = true } = {}) {
     zoom = 1;
     paintZoom();
     dims.textContent = `${result.width} × ${result.height}`;
-    viewTag.textContent = `SVG / ${theme}`;
+    viewTag.textContent = `SVG / ${theme} / ${layoutMode}`;
     statusLine.textContent = "Compiled clean";
     blocksOut.textContent = String(blocks);
     renderTimeOut.textContent =
@@ -303,6 +306,8 @@ async function loadExample(id) {
 
   loadingExample = true;
   exampleSelect.value = id;
+  layoutMode = id === "shared" ? "layers" : "slots";
+  layoutSelect.value = layoutMode;
   statusLine.textContent = `Loading ${file}…`;
   setSourceState("ready", "loading");
 
@@ -397,6 +402,7 @@ function saveSettings() {
   try {
     const settingsValue = {
       theme,
+      layout: layoutMode,
       cornerRadius: radiusInput.value,
       padding: paddingInput.value,
       socketGap: gapInput.value,
@@ -412,6 +418,9 @@ function restoreSettings() {
     const saved = JSON.parse(localStorage.getItem(STORE_SETTINGS) ?? "null");
     if (!saved || typeof saved !== "object") return;
     if (saved.theme === "dark" || saved.theme === "light") theme = saved.theme;
+    if (saved.layout === "slots" || saved.layout === "layers") {
+      layoutMode = saved.layout;
+    }
     for (const [key, input] of [
       ["cornerRadius", radiusInput],
       ["padding", paddingInput],
@@ -545,6 +554,12 @@ for (const button of panelButtons) {
   });
 }
 
+layoutSelect.addEventListener("change", () => {
+  layoutMode = layoutSelect.value === "layers" ? "layers" : "slots";
+  saveSettings();
+  renderNow();
+});
+
 for (const input of [radiusInput, paddingInput, gapInput]) {
   input.addEventListener("input", () => {
     updateSettingOutputs();
@@ -554,6 +569,8 @@ for (const input of [radiusInput, paddingInput, gapInput]) {
 }
 
 resetSettings.addEventListener("click", () => {
+  layoutMode = "slots";
+  layoutSelect.value = "slots";
   radiusInput.value = String(DEFAULTS.cornerRadius);
   paddingInput.value = String(DEFAULTS.padding);
   gapInput.value = String(DEFAULTS.socketGap);
@@ -642,6 +659,7 @@ window.addEventListener("hashchange", () => {
 restoreSettings();
 restoreSplit();
 updateSettingOutputs();
+layoutSelect.value = layoutMode;
 paintTheme();
 updateEditor();
 applySplit();

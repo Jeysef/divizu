@@ -47,8 +47,12 @@ export interface Document {
 }
 
 export type ThemeMode = "auto" | "dark" | "light";
+export type LayoutMode = "slots" | "layers";
 
 export interface RenderOptions {
+  /** Default "slots": providers plug directly into sockets. "layers" draws a
+   * shared-provider DAG with orthogonal cables. */
+  layout?: LayoutMode;
   /** Outer canvas padding in px. Default 56. */
   padding?: number;
   /** Corner radius for every orthogonal vertex. Default 8. */
@@ -129,6 +133,7 @@ export interface LayoutResult {
 }
 
 export interface LayoutOptions {
+  layout?: LayoutMode;
   layerGap?: number;
   socketGap?: number;
 }

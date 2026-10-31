@@ -1193,6 +1193,18 @@ ol {
   font-size: 9px;
 }
 
+.settings-panel select {
+  height: 25px;
+  padding: 0 6px;
+  border: 1px solid var(--line-2);
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--body);
+  font-family: var(--mono);
+  font-size: 9px;
+  cursor: pointer;
+}
+
 .setting input[type="range"] {
   grid-column: 1 / -1;
   width: 100%;

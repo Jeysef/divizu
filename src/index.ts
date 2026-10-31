@@ -1,5 +1,6 @@
 import { DivizuError } from "./diagnostics.ts";
 import { computeLayout } from "./layout.ts";
+import { computeSlotLayout } from "./slot-layout.ts";
 import { parseDocument } from "./parser.ts";
 import { validateDocument, type ValidationResult } from "./validate.ts";
 import type { LayoutOptions, LayoutResult } from "./ast.ts";
@@ -19,6 +20,7 @@ export type {
   ThemeMode,
   RenderOptions,
   RenderResult,
+  LayoutMode,
   LayoutSocket,
   LayoutNode,
   LayoutEdge,
@@ -39,7 +41,9 @@ export function layout(
   const doc = parseDocument(dsl);
   const result = validateDocument(doc);
   if (!result.ok) throw new DivizuError(result.errors[0]!);
-  return computeLayout(doc, options);
+  return (options.layout ?? "slots") === "slots"
+    ? computeSlotLayout(doc, options)
+    : computeLayout(doc, options);
 }
 
 /** Run the parser and semantic validator without laying out or rendering. */

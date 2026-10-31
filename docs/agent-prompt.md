@@ -29,6 +29,7 @@ RUN
   node /home/jeysef/Coding/DIviz/dist/cli.js <input.di> --check
   node /home/jeysef/Coding/DIviz/dist/cli.js <input.di> --check --json
   node /home/jeysef/Coding/DIviz/dist/cli.js <input.di> -o <output.svg>
+  node /home/jeysef/Coding/DIviz/dist/cli.js <input.di> --layout layers -o <output.svg>
 
   If dist/cli.js is missing:
     cd /home/jeysef/Coding/DIviz && npm install && npm run build
@@ -86,10 +87,12 @@ MINIMAL EXAMPLE
 RULES
   - Use exact module/class/service names from the code. Do not invent
     dependencies.
-  - Shared dependencies (Logger, Config, DB pool) are one block with many
-    `needs` pointing at it. Do not duplicate them.
+  - Default `--layout slots` plugs each provider directly into its socket.
+    Shared dependencies are duplicated per consumer in that view.
+  - `--layout layers` draws shared dependencies once with cables. Use it when
+    fan-in is the point.
   - A genuinely fresh instance (request scope, prototype) uses
-    `<- fresh Provider`.
+    `<- fresh Provider` with `--layout layers`.
   - Keep each plate readable: roughly 5–25 blocks. Split large systems by
     bounded context or feature.
   - If the project is not dependency-injection-shaped (dataflow, actors, UI

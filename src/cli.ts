@@ -11,10 +11,11 @@ import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { DivizuError, formatDiagnostic, diagnostic } from "./diagnostics.ts";
 import { computeLayout } from "./layout.ts";
+import { computeSlotLayout } from "./slot-layout.ts";
 import { parseDocument } from "./parser.ts";
 import { render } from "./render.ts";
 import { validateDocument } from "./validate.ts";
-import type { Document, RenderOptions, ThemeMode } from "./ast.ts";
+import type { Document, LayoutMode, RenderOptions, ThemeMode } from "./ast.ts";
 import type { Diagnostic } from "./diagnostics.ts";
 
 const VERSION = readVersion();
@@ -28,6 +29,7 @@ Usage:
 Options:
   -o, --out <file>       Write SVG to a file (default: stdout)
   -t, --theme <mode>     auto | dark | light (default: auto)
+      --layout <mode>    slots | layers (default: slots)
   -p, --padding <px>     Canvas padding (default: 56)
       --radius <px>      Corner radius (default: 8)
       --layer-gap <px>   Space between dependency layers (default: 78)
@@ -46,12 +48,14 @@ Examples:
   divizu architecture.di --check
   divizu architecture.di --check --json
   divizu architecture.di --check --verify-src
+  divizu architecture.di --layout layers -o architecture.svg
   cat architecture.di | divizu > architecture.svg
 `;
 
 interface Args {
   out?: string;
   theme: ThemeMode;
+  layout: LayoutMode;
   padding?: number;
   radius?: number;
   layerGap?: number;
@@ -102,6 +106,7 @@ if (args.check && args.out && !args.json) {
 
 const options: RenderOptions = {
   theme: args.theme,
+  layout: args.layout,
   ...(args.padding !== undefined ? { padding: args.padding } : {}),
   ...(args.radius !== undefined ? { cornerRadius: args.radius } : {}),
   ...(args.layerGap !== undefined ? { layerGap: args.layerGap } : {}),
@@ -161,10 +166,7 @@ if (args.watch) {
       const doc = parseDocument(source);
       const validation = validateDocument(doc);
       if (!validation.ok) throw new DivizuError(validation.errors[0]!);
-      const geometry = computeLayout(doc, {
-        layerGap: args.layerGap,
-        socketGap: args.socketGap,
-      });
+      const geometry = buildLayout(doc, args);
       writeOutput(JSON.stringify(geometry, null, 2) + "\n", args.out, "layout JSON");
     } else {
       const result = render(source, options);
@@ -204,10 +206,7 @@ function runCheck(source: string, file: string, args: Args): number {
 
   if (errors.length === 0) {
     try {
-      computeLayout(doc, {
-        layerGap: args.layerGap,
-        socketGap: args.socketGap,
-      });
+      buildLayout(doc, args);
     } catch (error) {
       if (error instanceof DivizuError) errors.push(error.toDiagnostic());
       else errors.push(diagnostic("syntax", messageOf(error), 1, 1));
@@ -231,13 +230,15 @@ function reportCheck(input: {
 
   if (ok && doc) {
     try {
-      const layout = computeLayout(doc, {
-        layerGap: args.layerGap,
-        socketGap: args.socketGap,
-      });
+      const layout = buildLayout(doc, args);
+      const edges = [...doc.blocks.values()].reduce(
+        (sum, block) =>
+          sum + block.needs.filter((need) => need.providerId !== undefined).length,
+        0,
+      );
       stats = {
         blocks: doc.blocks.size,
-        edges: layout.edges.length,
+        edges,
         roots: layout.roots.length,
         layers: layout.layers,
         width: Math.ceil(layout.width),
@@ -306,6 +307,7 @@ function parseCli(): Args {
       options: {
         out: { type: "string", short: "o" },
         theme: { type: "string", short: "t", default: "auto" },
+        layout: { type: "string", default: "slots" },
         padding: { type: "string", short: "p" },
         radius: { type: "string" },
         "layer-gap": { type: "string" },
@@ -324,6 +326,7 @@ function parseCli(): Args {
     return {
       out: values.out,
       theme: parseTheme(values.theme),
+      layout: parseLayout(values.layout),
       padding: parseNumber(values.padding, "padding", 0),
       radius: parseNumber(values.radius, "radius", 0),
       layerGap: parseNumber(values["layer-gap"], "layer-gap", 24),
@@ -355,6 +358,20 @@ function writeOutput(text: string, out: string | undefined, label: string): void
 function parseTheme(value: string | undefined): ThemeMode {
   if (value === "auto" || value === "dark" || value === "light") return value;
   fail(`Invalid --theme "${value}". Expected auto, dark or light.`);
+}
+
+function parseLayout(value: string | undefined): LayoutMode {
+  if (value === "slots" || value === "layers") return value;
+  fail(`Invalid --layout "${value}". Expected slots or layers.`);
+}
+
+function buildLayout(doc: Document, args: Args) {
+  return args.layout === "slots"
+    ? computeSlotLayout(doc, { socketGap: args.socketGap })
+    : computeLayout(doc, {
+        layerGap: args.layerGap,
+        socketGap: args.socketGap,
+      });
 }
 
 function parseNumber(

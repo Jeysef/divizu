@@ -126,11 +126,11 @@
               block that provides it.
             </p>
             <p>
-              The layout reads <strong>bottom-up</strong> and is a
-              <strong>layered graph</strong>, not a tree. Roots sit at the
-              bottom, providers above their consumers, and shared providers are
-              drawn once with a cable to each socket. Multiple roots share the
-              same upper layers.
+              The default layout reads <strong>bottom-up</strong> as a forest of
+              slot trees: each provider sits directly above its socket, with its
+              tab plugged into the notch. The optional <code>layers</code>
+              layout draws a layered DAG instead, where shared providers appear
+              once with a cable to each socket.
             </p>
 
             <div class="note">
@@ -257,41 +257,44 @@
               </li>
               <li>
                 The provider’s bottom edge grows a <strong>plug tab</strong>.
-                An orthogonal cable runs from the tab to the socket, so shared
-                providers can feed several consumers without being duplicated.
+                In the default slot layout the tab descends into the socket; in
+                the layers layout an orthogonal cable connects it to the socket
+                instead.
               </li>
               <li>
-                Rows are dependency layers, not a tree. A provider sits above
-                every consumer that needs it; multiple roots share the same
-                upper layers.
+                Slot mode is a forest: each provider is placed directly above
+                its socket, and wide subtrees push neighbouring sockets
+                outward. Layers mode is a DAG: a provider sits above every
+                consumer that needs it and shared providers are drawn once.
               </li>
               <li>
                 Every block perimeter — top notches, body, bottom tab — is one
                 clockwise polygon rounded with a single quadratic-curve pass.
-                Cables are separate paths.
+                Cables are separate paths in layers mode.
               </li>
             </ul>
 
             <p>
               A block may have several needs. They are ordered left-to-right
-              inside the block. A provider referenced by more than one socket is
-              drawn once and wired to each consumer. Write
-              <code>needs K &lt;- fresh Provider</code> when the consumer must
-              get its own instance.
+              inside the block. In slot mode a provider referenced twice is
+              slotted twice, once per consumer. In layers mode it is drawn once
+              and wired to each consumer. Write
+              <code>needs K &lt;- fresh Provider</code> in layers mode when a
+              consumer must get its own instance.
             </p>
 
             <figure class="doc-figure">
               <div class="doc-figure-head">
                 <span class="fig-id">FIG. 01</span>
                 <span class="fig-name">examples/checkout.svg</span>
-                <span class="fig-size">903 × 788</span>
+                <span class="fig-size">1347 × 652</span>
               </div>
               <div class="doc-figure-stage" data-svg="./examples/checkout.svg">
                 <img
                   src="./examples/checkout.svg"
-                  alt="Rendered checkout diagram with socket notches, interface pills and cable-connected adapters"
-                  width="903"
-                  height="788"
+                  alt="Rendered checkout diagram with socket notches, interface pills and slot-connected adapters"
+                  width="1347"
+                  height="652"
                 />
               </div>
               <figcaption>
@@ -302,11 +305,12 @@
             </figure>
 
             <div class="note">
-              Shared-by-default is the difference between a diagram and a
-              picture of the code. <code>DbLive</code> needed by twenty
-              components is one database node with twenty cables, not twenty
-              copies. Use <code>fresh</code> only when the runtime really
-              creates a separate instance.
+              Slots are the default; sharing is a deliberate view. Switch the
+              playground to <strong>Layers</strong> or pass
+              <code>--layout layers</code> when a <code>DbLive</code> needed by
+              twenty components should be one database node with twenty cables
+              instead of twenty slots. Use <code>fresh</code> only when the
+              runtime really creates a separate instance.
             </div>
           </section>
 
@@ -421,14 +425,14 @@
               <div class="doc-figure-head">
                 <span class="fig-id">FIG. 02</span>
                 <span class="fig-name">examples/candidates.svg</span>
-                <span class="fig-size">1100 × 950</span>
+                <span class="fig-size">1455 × 746</span>
               </div>
               <div class="doc-figure-stage" data-svg="./examples/candidates.svg">
                 <img
                   src="./examples/candidates.svg"
                   alt="Rendered candidates example with two factories and side notches"
-                  width="1100"
-                  height="950"
+                  width="1455"
+                  height="746"
                 />
               </div>
               <figcaption>
@@ -577,10 +581,12 @@ candidate  = name [ "(" name ")" ] ;
               data platform — and let the renderer lay the roots side by side.
             </p>
             <p>
-              The graph is layered, not a tree. A provider referenced by several
-              consumers is drawn once and wired to each socket; shared
-              infrastructure does not multiply. Use <code>modules:</code> to
-              compress internals, unbound needs to stop at external systems, and
+              Use the default slot layout for the literal hardware view, and
+              <code>--layout layers</code> when shared infrastructure should be
+              drawn once instead of duplicated per socket. In layers mode a
+              provider referenced by several consumers is one node with one
+              cable per socket. Use <code>modules:</code> to compress internals,
+              unbound needs to stop at external systems, and
               <code>candidates:</code> for alternatives.
             </p>
 
@@ -594,17 +600,17 @@ candidate  = name [ "(" name ")" ] ;
             <h3>Atlas Commerce / 28 blocks</h3>
             <p>
               This imagined commerce platform is one file with 28 blocks, three
-              roots and 25 cables: storefront, operator console, and async
-              workers. Shared infrastructure is drawn once. The full plate is
-              the system map — each context can be rendered separately for a
-              closer read.
+              roots and 25 dependencies: storefront, operator console, and async
+              workers. The plate below uses the default slot layout. The full
+              plate is the system map — each context can be rendered separately
+              for a closer read.
             </p>
 
             <figure class="doc-figure doc-figure-wide">
               <div class="doc-figure-head">
                 <span class="fig-id">FIG. 03</span>
                 <span class="fig-name">examples/large.svg</span>
-                <span class="fig-size">2972 × 886 / 28 blocks</span>
+                <span class="fig-size">3704 × 682 / 28 blocks</span>
                 <a class="fig-open" href="./examples/large.svg">Open SVG ↗</a>
               </div>
               <div
@@ -615,8 +621,8 @@ candidate  = name [ "(" name ")" ] ;
                 <img
                   src="./examples/large.svg"
                   alt="A 28-block Atlas Commerce system map with storefront, operator console and async worker roots"
-                  width="2972"
-                  height="886"
+                  width="3704"
+                  height="682"
                 />
               </div>
               <figcaption>
@@ -646,9 +652,9 @@ candidate  = name [ "(" name ")" ] ;
                 another team's service.
               </li>
               <li>
-                <strong>Draw shared providers once.</strong> A provider
-                referenced by many consumers stays one node with many cables.
-                Use <code>fresh</code> only for a genuinely separate instance.
+                <strong>Pick the right layout.</strong> Slots duplicate shared
+                providers. Layers draw them once with cables. Use layers when
+                fan-in is the point; use slots when the physical metaphor is.
               </li>
             </ul>
 
@@ -800,9 +806,10 @@ divizu architecture.di --check --verify-src</code></pre>
 
             <ul>
               <li>
-                <strong>Shared providers are drawn once.</strong> Use
-                <code>fresh</code> for a separate instance. Fresh expansion
-                still grows the instance count; it is guarded at 5,000.
+                <strong>Sharing is layout-dependent.</strong> Slot mode
+                duplicates a provider per consumer. Layers mode draws it once;
+                <code>fresh</code> opts into a separate instance. Both are
+                guarded at 5,000 instances.
               </li>
               <li>
                 <strong>Graphs must be acyclic.</strong> Cycles, orphan blocks

@@ -9,6 +9,7 @@ import type {
 } from "./ast.ts";
 import { DivizuError } from "./diagnostics.ts";
 import { computeLayout } from "./layout.ts";
+import { computeSlotLayout } from "./slot-layout.ts";
 import { parseDocument } from "./parser.ts";
 import { DARK, FONT_STACK, THEME_CSS, paletteFor, type Palette } from "./theme.ts";
 import { validateDocument } from "./validate.ts";
@@ -32,10 +33,15 @@ export function render(dsl: string, options: RenderOptions = {}): RenderResult {
     throw new DivizuError(first);
   }
 
-  const layout = computeLayout(doc, {
-    layerGap: options.layerGap,
-    socketGap: options.socketGap,
-  });
+  const layout =
+    (options.layout ?? "slots") === "slots"
+      ? computeSlotLayout(doc, {
+          socketGap: options.socketGap,
+        })
+      : computeLayout(doc, {
+          layerGap: options.layerGap,
+          socketGap: options.socketGap,
+        });
 
   return renderLayout(layout, options);
 }

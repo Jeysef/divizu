@@ -2,12 +2,12 @@
 
 Deterministic **DSL → SVG** architecture diagrams for coding agents. An agent
 reads the repository, writes a small `.di` file, validates it, and gives the user
-a layered drawing with sockets, plugs and cables.
+a slot or layered drawing with sockets, plugs and cables.
 
 - Zero runtime dependencies.
 - No DOM, canvas or browser needed.
 - Same DSL → byte-identical SVG.
-- Shared providers are drawn once; `fresh` opts into a separate instance.
+- Slots are the default. `--layout layers` draws shared providers once; `fresh` opts into a separate instance.
 - Strict parser and validator with file-relative `line:column` and fix hints.
 
 ![Checkout DI example](examples/checkout.svg)
@@ -51,7 +51,7 @@ compatibility).
 
 | Problem with hand-written or AI-generated diagrams | What divizu does |
 | --- | --- |
-| A shared logger is copied into every consumer | One provider node, one cable per socket |
+| A shared logger is copied into every consumer | Slot mode keeps the literal plug; layers mode draws one node with many cables |
 | Every model invents different roles | Exactly four roles with tests an agent can apply |
 | Typos become plausible architecture | Strict validation with suggestions and `line:column` |
 | Layout depends on a browser or fonts | Monospace width grid and deterministic geometry |
@@ -114,8 +114,10 @@ Rules:
 - Comments (`#`, `//`) only start at a token boundary. `C#Parser` is a name.
 - Quote names with spaces or punctuation: `provides: "@app/Users"`.
 - `provides:` is optional. When present, `needs K <- P` is checked against it.
-- Shared providers are drawn once. `needs K <- fresh P` duplicates one instance
-  for that consumer.
+- Slot mode (default) plugs each provider directly into its socket and duplicates
+  shared providers per consumer. Layers mode draws shared providers once with a
+  cable to each socket. `needs K <- fresh P` opts into a fresh instance in
+  layers mode.
 - Every non-root block must be referenced; every root must be unreferenced.
 - Cycles, duplicate ids, duplicate needs and ambiguous providers are errors.
 - `modules:` are internal collaborators; `candidates:` are alternatives.
@@ -170,17 +172,20 @@ Use `--json` without `--check` to print computed layout geometry.
 
 ## Layout
 
-The layout is a layered DAG:
+There are two layouts, selected with `--layout` or the playground setting:
 
-1. Roots sit at the bottom.
-2. Every provider sits above all consumers that need it.
-3. Long edges get routing lanes between layers.
-4. Shared providers occupy one node per declared block.
-5. Cables are orthogonal and run behind the nodes.
+**`slots` (default)** — a forest of slot trees. Each provider sits directly
+above its socket; the provider’s plug tab descends into the notch. Wide
+subtrees reserve space and push neighbouring sockets outward. Shared providers
+are duplicated per consumer, exactly like the hardware metaphor.
 
-Multiple roots are laid out side by side and share the same upper layers. The
-useful limit is reading, not computation: keep a plate around 5–25 blocks and
-split large systems by bounded context. The renderer guards at 5,000 instances.
+**`layers`** — a layered DAG. Roots sit at the bottom, every provider sits above
+all consumers that need it, and long edges get routing lanes between layers.
+Shared providers are one node with one cable per socket.
+
+Both layouts place multiple roots side by side. The useful limit is reading, not
+computation: keep a plate around 5–25 blocks and split large systems by bounded
+context. The renderer guards at 5,000 instances.
 
 ## CLI
 
@@ -193,6 +198,7 @@ cat graph.di | divizu [options]
 | --- | --- |
 | `-o, --out <file>` | Write SVG to a file (default: stdout) |
 | `-t, --theme <mode>` | `auto`, `dark`, `light` (default `auto`) |
+| `--layout <mode>` | `slots` (default) or `layers` |
 | `-p, --padding <px>` | Canvas padding (default 56) |
 | `--radius <px>` | Corner radius (default 8) |
 | `--layer-gap <px>` | Space between dependency layers (default 78) |
@@ -209,7 +215,8 @@ cat graph.di | divizu [options]
 ```ts
 import { render, mount, layout, validate } from "divizu";
 
-const { svg, width, height } = render(dsl, { theme: "dark" });
+const { svg, width, height } = render(dsl, { theme: "dark" }); // slots
+const shared = render(sharedDsl, { layout: "layers" });
 
 const report = validate(dsl);
 if (!report.ok) console.error(report.errors);
@@ -248,7 +255,7 @@ variable support.
 
 - [quickstart.di](examples/quickstart.di) / [SVG](examples/quickstart.svg)
 - [checkout.di](examples/checkout.di) / [SVG](examples/checkout.svg)
-- [shared.di](examples/shared.di) / [SVG](examples/shared.svg)
+- [shared.di](examples/shared.di) / [SVG](examples/shared.svg) — `--layout layers`
 - [candidates.di](examples/candidates.di) / [SVG](examples/candidates.svg)
 - [large.di](examples/large.di) / [SVG](examples/large.svg) — 28 blocks, 3 roots
 
@@ -279,7 +286,8 @@ site/               live sample, playground, docs and agent skill
 
 ## Limits
 
-- Shared providers use one node; `fresh` duplicates the immediate provider.
+- Sharing is layout-dependent: slots duplicate, layers draw one node; `fresh`
+  duplicates the immediate provider in layers mode.
 - Graphs must be acyclic. Cut callback/event loops with an unbound need.
 - Text width is a monospace heuristic; CJK or emoji-heavy labels can overflow.
 - Dependency sockets are on the top edge. Candidate side notches are the only

@@ -2,9 +2,9 @@
 
 > A deterministic DSL → SVG compiler for architecture diagrams that coding agents can write.
 
-divizu lets an agent express a repository's wiring as a layered drawing. Roots
-sit at the bottom, dependencies above them, and shared providers are drawn once
-with a cable to each consumer. The renderer has zero runtime dependencies, needs
+divizu lets an agent express a repository's wiring as a slot or layered drawing.
+The default slots view plugs each provider directly into its socket. The layers
+view draws shared providers once with a cable to each consumer. The renderer has zero runtime dependencies, needs
 no browser, and produces deterministic output for the same DSL.
 
 ## Start here
@@ -41,6 +41,7 @@ npm install
 npm run build
 node dist/cli.js architecture.di --check
 node dist/cli.js architecture.di -o architecture.svg
+node dist/cli.js architecture.di --layout layers -o architecture.svg
 ```
 
 ## Roles
@@ -52,8 +53,9 @@ Exactly four:
 - `boundary` — database, network, queue, filesystem or vendor adapter.
 - `value` — config/injected data with no behaviour.
 
-Language details go in `tag:`. `provides:` declares service keys. Shared
-providers are drawn once; `<- fresh Provider` opts into a separate instance.
+Language details go in `tag:`. `provides:` declares service keys. In
+`--layout layers` shared providers are drawn once; `<- fresh Provider` opts into
+a separate instance. The default `--layout slots` duplicates them per consumer.
 `src: "path:line"` records provenance for `--check --verify-src`.
 
 ## DSL
@@ -110,7 +112,8 @@ unreferenced. Cycles are rejected. Use unbound needs for external systems.
 ## Properties
 
 - Input: plain-text `.di` DSL.
-- Output: deterministic, self-contained SVG with a layered DAG layout.
+- Output: deterministic, self-contained SVG. Default slot layout; optional
+  layered DAG with cables for shared providers.
 - Runtime: zero dependencies, no DOM, no canvas, no headless browser.
 - Validation: file-relative `line:column`, fix hints, `--check --json`,
   `--check --verify-src`.

@@ -199,8 +199,16 @@ test("reports file-relative line and column", () => {
   }
 });
 
-test("shared providers are drawn once", () => {
-  const result = layout(SHARED);
+test("slot layout plugs providers directly into sockets", () => {
+  const result = layout(CHECKOUT);
+  assert.equal(result.nodes.length, 5);
+  assert.equal(result.edges.length, 0);
+  assert.ok(result.nodes.every((node) => node.role === "root" || node.plugWidth > 0));
+  assert.equal(result.nodes.find((node) => node.role === "root")?.plugWidth, 0);
+});
+
+test("layers layout draws shared providers once", () => {
+  const result = layout(SHARED, { layout: "layers" });
   assert.equal(result.nodes.length, 2);
   assert.equal(result.nodes.filter((node) => node.id === "Svc").length, 1);
   assert.equal(result.edges.length, 2);
@@ -208,19 +216,22 @@ test("shared providers are drawn once", () => {
 });
 
 test("fresh providers are duplicated per consumer", () => {
-  const result = layout(`
+  const result = layout(
+    `
 root App {
   needs A <- Svc
   needs B <- fresh Svc
 }
 component Svc { provides: A, B }
-`);
+`,
+    { layout: "layers" },
+  );
   assert.equal(result.nodes.filter((node) => node.id === "Svc").length, 2);
   assert.ok(result.nodes.some((node) => node.fresh));
 });
 
 test("lays out layers without node overlap", () => {
-  const result = layout(CHECKOUT);
+  const result = layout(CHECKOUT, { layout: "layers" });
   const byLayer = new Map<number, typeof result.nodes>();
   for (const node of result.nodes) {
     const list = byLayer.get(node.layer) ?? [];
@@ -255,8 +266,11 @@ test("emits deterministic, escaped, themed SVG", () => {
   assert.match(first.svg, /di-role-root/);
   assert.match(first.svg, /di-role-component/);
   assert.match(first.svg, /di-role-boundary/);
-  assert.match(first.svg, /di-edge/);
+  assert.doesNotMatch(first.svg, /class="di-edge"/);
   assert.match(first.svg, /--di-stroke-root/);
+
+  const layers = render(CHECKOUT, { layout: "layers" }).svg;
+  assert.match(layers, /di-edge/);
 
   const danger = render(`
 root App "a & <b>" { needs X <- A }
